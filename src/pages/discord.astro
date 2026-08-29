@@ -1,0 +1,93 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../config/site";
+---
+
+<BaseLayout
+  title="End of Day Discord | WARDOGS Community"
+  description="Join the End of Day WARDOGS Discord. Find squads, server announcements, community clips, admins, and the people you'll be playing with."
+>
+  <header class="topbar shell">
+    <a class="brand" href="/" aria-label="End of Day home">
+      <span class="brand-logo-frame" aria-hidden="true">
+        <img src="/images/end-of-day-logo.png" alt="" />
+      </span>
+      <span class="brand-copy">
+        <strong>END OF DAY</strong>
+        <small>EOD • WARDOGS COMMUNITY</small>
+      </span>
+    </a>
+
+    <nav class="desktop-nav" aria-label="Page navigation">
+      <a href="/server">SERVER</a>
+      <a href="/about">ABOUT</a>
+      <a href="/rules">RULES</a>
+      <a class="nav-button" href="/discord">DISCORD</a>
+    </nav>
+  </header>
+
+  <main class="subpage shell discord-page">
+    <section class="subpage-heading">
+      <p class="section-index">EOD / DISCORD</p>
+      <h1>HOME<br /><em>BASE.</em></h1>
+      <p>
+        The server is where we fight. Discord is where End of Day lives between
+        matches. Join now, meet the regulars, and be ready when the server opens.
+      </p>
+    </section>
+
+    <section class="discord-page-grid">
+      <div class="discord-page-reasons">
+        <article>
+          <span>01</span>
+          <div>
+            <strong>FIND A SQUAD</strong>
+            <p>Find people to run infantry, armor, aviation, or logistics with.</p>
+          </div>
+        </article>
+        <article>
+          <span>02</span>
+          <div>
+            <strong>SERVER ANNOUNCEMENTS</strong>
+            <p>Launch information, server updates, events, and important changes.</p>
+          </div>
+        </article>
+        <article>
+          <span>03</span>
+          <div>
+            <strong>COMMUNITY</strong>
+            <p>Clips, screenshots, game talk, server feedback, and general nonsense.</p>
+          </div>
+        </article>
+        <article>
+          <span>04</span>
+          <div>
+            <strong>ADMINS</strong>
+            <p>A clear place to reach the people responsible for the server.</p>
+          </div>
+        </article>
+      </div>
+
+      <aside class="discord-join-card">
+        <div class="discord-join-card-logo">
+          <img src="/images/end-of-day-logo.png" alt="End of Day EOD logo" />
+        </div>
+
+        <p class="section-index">PERMANENT INVITE</p>
+        <h2>END OF DAY</h2>
+        <p>Never expires. Unlimited uses.</p>
+
+        <div class="discord-page-qr">
+          <img src="/images/discord-qr.png" alt="QR code for the End of Day Discord invite" />
+          <small>SCAN TO JOIN</small>
+        </div>
+
+        <a class="button button-accent" href={site.discordUrl} target="_blank" rel="noreferrer">
+          OPEN DISCORD
+        </a>
+
+        <code>discord.gg/NVgJ5mpscy</code>
+      </aside>
+    </section>
+  </main>
+</BaseLayout>

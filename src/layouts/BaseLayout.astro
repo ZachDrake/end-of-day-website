@@ -1,0 +1,57 @@
+---
+import "../styles/global.css";
+import { site } from "../config/site";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = site.seo.title,
+  description = site.seo.description
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="End of Day" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalURL} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="theme-color" content="#0a0c0f" />
+    <link rel="icon" type="image/png" href="/images/favicon-64.png" />
+    <link rel="apple-touch-icon" href="/images/end-of-day-icon-192.png" />
+    <meta property="og:image" content="/images/end-of-day-icon-512.png" />
+    <meta name="twitter:image" content="/images/end-of-day-icon-512.png" />
+
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: site.communityName,
+      url: canonicalURL.origin,
+      description
+    })} />
+  </head>
+
+  <body>
+    <div class="scroll-progress" aria-hidden="true"></div>
+    <slot />
+  </body>
+</html>

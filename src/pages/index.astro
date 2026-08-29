@@ -1,0 +1,617 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../config/site";
+import { media } from "../config/media";
+
+const roles = [
+  {
+    number: "01",
+    title: "INFANTRY",
+    copy: "Push the zone, clear buildings, revive teammates, and make the ground fight matter."
+  },
+  {
+    number: "02",
+    title: "AVIATION",
+    copy: "Move people and supplies, control the airspace, and become the pilot people recognize."
+  },
+  {
+    number: "03",
+    title: "ARMOR",
+    copy: "Bring weight to the fight without forgetting the infantry that keeps you alive."
+  },
+  {
+    number: "04",
+    title: "LOGISTICS",
+    copy: "Build, supply, transport, and turn a good squad into a team that can hold ground."
+  }
+];
+
+const rules = [
+  ["BE CIVIL.", "There's levels to trash talk."],
+  ["AVOID BEING A CRASHOUT.", "It's only game, why you have to be mad?"],
+  ["NO NSFW.", "We're all here to play WARDOGS… not share feet pics."],
+  ["ALWAYS TIP YOUR TAXI.", "Help a brother out. They've earned it."],
+  ["GLHF.", "May the best team win."]
+];
+---
+
+<BaseLayout>
+  <header class="topbar shell">
+    <a class="brand" href="#top" aria-label={`${site.communityName} home`}>
+      <span class="brand-logo-frame" aria-hidden="true">
+        <img src="/images/end-of-day-logo.png" alt="" />
+      </span>
+      <span class="brand-copy">
+        <strong>END OF DAY</strong>
+        <small>EOD • WARDOGS COMMUNITY</small>
+      </span>
+    </a>
+
+    <nav class="desktop-nav" aria-label="Main navigation">
+      <a href="/server">SERVER</a>
+      <a href="#roles">PLAY YOUR WAY</a>
+      <a href="/rules">RULES</a>
+      <a class="nav-button" href={site.discordUrl} target="_blank" rel="noreferrer">DISCORD</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero shell has-hero-media" style={`--hero-image: url("${media.hero}")`}>
+      <div class="hero-noise"></div>
+      <div class="hero-grid"></div>
+      <div class="hero-mark" aria-hidden="true">W</div>
+
+      <div class="hero-topline">
+        <span>END OF DAY • EOD</span>
+        <span>{site.region}</span>
+        <span>EST. 2026</span>
+      </div>
+<div class="hero-content hero-content-v13">
+        <p class="eyebrow">WARDOGS COMMUNITY • END OF DAY</p>
+
+        <h1>
+          OWN THE<br />
+          <em>FIGHT.</em>
+        </h1>
+
+        <p class="hero-lede">
+          A WARDOGS home server for players who want teamwork, good fights,
+          active admins, and a community worth coming back to.
+        </p>
+
+        <div class="actions">
+          <a
+            class="button button-accent"
+            href={site.discordUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            JOIN BEFORE LAUNCH
+          </a>
+          <a class="button button-ghost" href="#server">SERVER INTEL</a>
+        </div>
+      </div>
+
+      <div class="hero-side-note" aria-hidden="true">
+        <span>01</span>
+        <strong>COMMUNITY FIRST.</strong>
+        <p>THE SERVER IS COMING.</p>
+      </div>
+
+      <div class="launch-strip">
+        <div>
+          <span class="pulse"></span>
+          <span>PRE-LAUNCH</span>
+        </div>
+        <div class="launch-center">
+          <small>SERVER STATUS</small>
+          <strong>COMING WITH EARLY ACCESS</strong>
+        </div>
+        <div class="countdown" data-launch-date={site.earlyAccessDate}>
+          <small>EARLY ACCESS COUNTDOWN</small>
+          <strong id="countdown-value">CALCULATING…</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="statement shell reveal">
+      <p class="section-index">00 / MISSION</p>
+      <p class="statement-copy">
+        WARDOGS gives players a giant battlefield.
+        <strong>We're building the place you choose to fight on it.</strong>
+      </p>
+    </section>
+
+    <section class="prelaunch shell reveal" aria-labelledby="prelaunch-title">
+      <div class="prelaunch-heading">
+        <p class="section-index">PRE-LAUNCH / JOIN NOW</p>
+        <h2 id="prelaunch-title">DON'T SHOW UP<br />TO AN EMPTY ROOM.</h2>
+        <p>
+          WARDOGS launches September 10. End of Day doesn't have to.
+          Join the Discord now so launch day starts with familiar names instead
+          of a server full of strangers.
+        </p>
+      </div>
+
+      <div class="prelaunch-steps">
+        <article>
+          <span>01</span>
+          <strong>JOIN THE DISCORD</strong>
+          <p>Get into the community before the server opens.</p>
+        </article>
+
+        <article>
+          <span>02</span>
+          <strong>MEET THE REGULARS</strong>
+          <p>Talk squads, vehicles, flying, server ideas, and whatever else comes up.</p>
+        </article>
+
+        <article>
+          <span>03</span>
+          <strong>BE THERE DAY ONE</strong>
+          <p>When the server goes live, you already know where you're playing.</p>
+        </article>
+      </div>
+
+      <div class="prelaunch-cta">
+        <div>
+          <small>WARDOGS EARLY ACCESS</small>
+          <strong>SEPTEMBER 10, 2026</strong>
+        </div>
+        <a
+          class="button button-accent"
+          href={site.discordUrl}
+          target="_blank"
+          rel="noreferrer"
+        >
+          JOIN THE DISCORD NOW
+        </a>
+      </div>
+    </section>
+
+    <section class="founding shell reveal" aria-labelledby="founding-title">
+      <div class="founding-grid">
+        <div class="founding-copy">
+          <p class="section-index">END OF DAY / EST. 2026</p>
+          <h2 id="founding-title">GET IN<br />BEFORE IT'S<br /><em>A THING.</em></h2>
+          <p>
+            End of Day is still small enough that joining means
+            helping shape what it becomes. Server culture, events, squads,
+            inside jokes, rivalries — this is the part where all of that starts.
+          </p>
+
+          <div class="founding-points">
+            <span>NO APPLICATION</span>
+            <span>NO RANK GRIND</span>
+            <span>NO FAKE MILITARY</span>
+            <span>JUST SHOW UP</span>
+          </div>
+        </div>
+
+        <aside class="founding-card">
+          <div class="founding-card-top">
+            <span>EOD ACCESS</span>
+            <strong>OPEN</strong>
+          </div>
+
+          <div class="founding-symbol founding-symbol-logo" aria-hidden="true">
+            <img src="/images/end-of-day-logo.png" alt="" />
+          </div>
+
+          <div class="founding-card-copy">
+            <small>STATUS</small>
+            <strong>EOD MEMBERS WANTED</strong>
+            <p>
+              Join now. Learn the names. Be one of the people everybody
+              recognizes when the server opens.
+            </p>
+          </div>
+
+          <a
+            class="button button-accent"
+            href={site.discordUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            GET IN EARLY
+          </a>
+        </aside>
+      </div>
+    </section>
+
+    <section id="server" class="section shell">
+      <div class="section-header">
+        <div>
+          <p class="section-index">01 / SERVER</p>
+          <h2>YOUR HOME<br />BATTLEFIELD.</h2>
+        </div>
+        <p class="section-intro">
+          The server is the center of the community. The goal isn't just population.
+          It's regulars, rivalries, squads, pilots, admins, and familiar names.
+        </p>
+      </div>
+
+      <article class="intel-card reveal">
+        <div class="intel-main">
+          <div class="intel-status">
+            <span class="pulse"></span>
+            {site.serverState}
+          </div>
+
+          <p class="intel-label">SERVER NAME</p>
+          <h3>{site.serverName}</h3>
+
+          <div class="intel-grid">
+            <div>
+              <small>REGION</small>
+              <strong>{site.region}</strong>
+            </div>
+            <div>
+              <small>LANGUAGE</small>
+              <strong>{site.language}</strong>
+            </div>
+            <div>
+              <small>PLAY STYLE</small>
+              <strong>{site.playStyle}</strong>
+            </div>
+            <div>
+              <small>ADMIN TEAM</small>
+              <strong>ACTIVE</strong>
+            </div>
+          </div>
+        </div>
+
+        <aside class="intel-side">
+          <p class="section-index">STATUS</p>
+          <strong>{site.serverStateDetail}</strong>
+          <p>
+            Live player count, current map, queue, and join information can slot
+            into this panel once the dedicated-server interface is confirmed.
+          </p>
+          <button disabled class="button button-disabled">CONNECT — SOON</button>
+        </aside>
+      </article>
+    </section>
+
+    <section id="roles" class="section roles-section shell">
+      <div class="section-header">
+        <div>
+          <p class="section-index">02 / PLAY YOUR WAY</p>
+          <h2>BRING WHAT<br />YOU'RE GOOD AT.</h2>
+        </div>
+        <p class="section-intro">
+          No mandatory roleplay. No fake chain of command. Coordinate when it
+          matters, specialize if you want, and help your team win your way.
+        </p>
+      </div>
+
+      <div class="role-grid reveal">
+        {roles.map((role) => (
+          <article class="role-card">
+            <div class="role-number">{role.number}</div>
+            <div class="role-crosshair" aria-hidden="true"></div>
+            <h3>{role.title}</h3>
+            <p>{role.copy}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="media-section">
+      <div class="shell media-shell-v8">
+        <div class="media-copy-v8 reveal">
+          <p class="section-index">03 / VISUAL INTEL</p>
+          <h2>THIS IS<br />THE FIGHT.</h2>
+          <p>
+            Until our server is live, we're using official WARDOGS pre-launch
+            media to set the scene. After launch, this becomes community footage:
+            your squads, your pilots, your fights.
+          </p>
+
+          <div class="media-source-note">
+            <span>NOW</span>
+            <strong>OFFICIAL PRE-LAUNCH MEDIA</strong>
+          </div>
+          <div class="media-source-note">
+            <span>NEXT</span>
+            <strong>COMMUNITY SERVER CAPTURES</strong>
+          </div>
+        </div>
+
+        <div class="media-gallery reveal" id="media-gallery">
+          {media.gallery.map((item, index) => (
+            <button
+              class:list={["gallery-item", index === 0 && "gallery-item-featured"]}
+              type="button"
+              data-lightbox-src={item.src}
+              data-lightbox-alt={item.alt}
+              aria-label={`Open image: ${item.alt}`}
+            >
+              <img
+                src={item.src}
+                alt={item.alt}
+                loading={index === 0 ? "eager" : "lazy"}
+                referrerpolicy="no-referrer"
+              />
+              <span class="gallery-shade"></span>
+              <span class="gallery-label">{item.label}</span>
+              <span class="gallery-open">EXPAND ↗</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-label="Image viewer">
+      <button class="lightbox-close" type="button" aria-label="Close image viewer">CLOSE ×</button>
+      <img id="lightbox-image" src="" alt="" />
+      <div class="lightbox-caption">
+        <span>WARDOGS / PRE-LAUNCH MEDIA</span>
+        <small>ESC TO CLOSE</small>
+      </div>
+    </div>
+
+    <section class="discord-section shell">
+      <div class="discord-panel reveal">
+        <div class="discord-copy">
+          <p class="section-index dark-index">04 / DISCORD</p>
+          <h2>THE SERVER IS THE FIGHT.<br />DISCORD IS HOME BASE.</h2>
+          <p>
+            Join before launch and you'll already know where to find squads,
+            server announcements, admins, clips, and the regulars once the server goes live.
+          </p>
+
+          <div class="discord-benefits" aria-label="Discord community benefits">
+            <span>FIND A SQUAD</span>
+            <span>SERVER ANNOUNCEMENTS</span>
+            <span>COMMUNITY &amp; CLIPS</span>
+          </div>
+        </div>
+
+        <div class="discord-action">
+          <div class="discord-qr-wrap">
+            <img
+              src="/images/discord-qr.png"
+              alt="QR code for the community Discord invite"
+              width="156"
+              height="156"
+              loading="lazy"
+            />
+            <span>SCAN TO JOIN</span>
+          </div>
+
+          <small>OR OPEN IT DIRECTLY</small>
+          <a
+            class="button button-dark"
+            href={site.discordUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            JOIN THE DISCORD
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section id="rules" class="section shell">
+      <div class="rules-layout">
+        <div class="rules-title">
+          <p class="section-index">05 / RULES</p>
+          <h2>RULES OF<br />ENGAGEMENT.</h2>
+          <p>Keep it civil. Keep it fun. Don't make the server miserable for everyone else.</p>
+        </div>
+
+        <ol class="rules-list">
+          {rules.map(([title, copy], index) => (
+            <li>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <div>
+                <strong>{title}</strong>
+                <p>{copy}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <section class="section shell faq-section">
+      <div class="section-header">
+        <div>
+          <p class="section-index">06 / QUICK INTEL</p>
+          <h2>BEFORE YOU<br />CLICK JOIN.</h2>
+        </div>
+        <p class="section-intro">
+          The community is forming now. The game server itself comes next.
+        </p>
+      </div>
+
+      <div class="faq-grid reveal">
+        <article>
+          <h3>IS THE WARDOGS SERVER LIVE YET?</h3>
+          <p>
+            Not yet. The current plan is to bring the community server online
+            with WARDOGS Early Access.
+          </p>
+        </article>
+
+        <article>
+          <h3>CAN I JOIN THE DISCORD NOW?</h3>
+          <p>
+            Yep. That's the best place to get established before launch and
+            keep up with server announcements.
+          </p>
+        </article>
+
+        <article>
+          <h3>WHAT KIND OF SERVER IS THIS?</h3>
+          <p>
+            Community-run, teamwork-focused, combined-arms, and intentionally
+            lighter on bureaucracy than a traditional milsim clan.
+          </p>
+        </article>
+
+        <article>
+          <h3>WHAT HAPPENS WHEN THE SERVER GOES LIVE?</h3>
+          <p>
+            This site will add live server information such as status, player
+            count, map, queue, and connection details when the tooling allows it.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="endcap shell reveal">
+      <p class="eyebrow">END OF DAY • EST. 2026 • EOD</p>
+      <h2>FIND YOUR PEOPLE.<br /><em>HOLD THE ZONE.</em></h2>
+      <div class="actions actions-center">
+        <a class="button button-accent" href={site.discordUrl} target="_blank" rel="noreferrer">JOIN THE COMMUNITY</a>
+        <a class="button button-ghost" href={site.steamUrl} target="_blank" rel="noreferrer">
+          WARDOGS ON STEAM
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <a
+    class="mobile-discord-cta"
+    href={site.discordUrl}
+    target="_blank"
+    rel="noreferrer"
+    aria-label="Join the WARDOGS community Discord"
+  >
+    <span>JOIN DISCORD</span>
+    <small>COMMUNITY OPEN NOW</small>
+  </a>
+
+  <footer class="footer shell">
+    <div>
+      <strong>{site.communityName}</strong>
+      <p>
+        Independent community project. Not affiliated with BULKHEAD or Team17.
+        WARDOGS and related marks and promotional media belong to their respective owners.
+      </p>
+    </div>
+
+    <div class="footer-links">
+        <a href="/server">SERVER</a>
+        <a href="/about">ABOUT</a>
+        <a href="/rules">RULES</a>
+        <a href="/discord">DISCORD</a>
+      </div>
+  </footer>
+
+  <script is:inline>
+    (() => {
+      const root = document.documentElement;
+      const topbar = document.querySelector(".topbar");
+      const launchNode = document.querySelector("[data-launch-date]");
+      const countdownOutput = document.querySelector("#countdown-value");
+
+      const updateCountdown = () => {
+        if (!launchNode || !countdownOutput) return;
+
+        const launch = new Date(launchNode.dataset.launchDate);
+        const diff = launch.getTime() - Date.now();
+
+        if (diff <= 0) {
+          countdownOutput.textContent = "EARLY ACCESS LIVE";
+          return;
+        }
+
+        const days = Math.floor(diff / 86400000);
+        const hours = Math.floor((diff % 86400000) / 3600000);
+        const minutes = Math.floor((diff % 3600000) / 60000);
+
+        countdownOutput.textContent =
+          `${days}D ${String(hours).padStart(2, "0")}H ${String(minutes).padStart(2, "0")}M`;
+      };
+
+      const updateScroll = () => {
+        const scrollTop = window.scrollY;
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = maxScroll > 0 ? (scrollTop / maxScroll) * 100 : 0;
+
+        root.style.setProperty("--scroll-progress", `${progress}%`);
+        topbar?.classList.toggle("is-scrolled", scrollTop > 20);
+      };
+
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      if (!reducedMotion) {
+        window.addEventListener("pointermove", (event) => {
+          root.style.setProperty("--mouse-x", `${event.clientX}px`);
+          root.style.setProperty("--mouse-y", `${event.clientY}px`);
+
+          const hero = document.querySelector(".hero");
+          if (hero && event.clientY < hero.getBoundingClientRect().bottom) {
+            const x = (event.clientX / window.innerWidth - 0.5) * 16;
+            const y = (event.clientY / window.innerHeight - 0.5) * 10;
+            root.style.setProperty("--hero-parallax-x", `${x}px`);
+            root.style.setProperty("--hero-parallax-y", `${y}px`);
+          }
+        });
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-visible");
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.1 }
+        );
+
+        document.querySelectorAll(".reveal").forEach((node) => observer.observe(node));
+      } else {
+        document.querySelectorAll(".reveal").forEach((node) => node.classList.add("is-visible"));
+      }
+
+
+      const lightbox = document.querySelector("#lightbox");
+      const lightboxImage = document.querySelector("#lightbox-image");
+      const lightboxClose = document.querySelector(".lightbox-close");
+
+      const closeLightbox = () => {
+        if (!lightbox || !lightboxImage) return;
+        lightbox.classList.remove("is-open");
+        lightbox.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("lightbox-open");
+        window.setTimeout(() => {
+          if (!lightbox.classList.contains("is-open")) {
+            lightboxImage.src = "";
+            lightboxImage.alt = "";
+          }
+        }, 250);
+      };
+
+      document.querySelectorAll("[data-lightbox-src]").forEach((button) => {
+        button.addEventListener("click", () => {
+          if (!lightbox || !lightboxImage) return;
+          lightboxImage.src = button.dataset.lightboxSrc || "";
+          lightboxImage.alt = button.dataset.lightboxAlt || "";
+          lightbox.classList.add("is-open");
+          lightbox.setAttribute("aria-hidden", "false");
+          document.body.classList.add("lightbox-open");
+        });
+      });
+
+      lightboxClose?.addEventListener("click", closeLightbox);
+      lightbox?.addEventListener("click", (event) => {
+        if (event.target === lightbox) closeLightbox();
+      });
+      window.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") closeLightbox();
+      });
+
+      updateCountdown();
+      updateScroll();
+
+      window.addEventListener("scroll", updateScroll, { passive: true });
+      window.addEventListener("resize", updateScroll);
+      setInterval(updateCountdown, 30000);
+    })();
+  </script>
+</BaseLayout>

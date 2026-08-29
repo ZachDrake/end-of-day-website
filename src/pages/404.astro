@@ -1,0 +1,42 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../config/site";
+---
+
+<BaseLayout
+  title={`404 | ${site.communityName}`}
+  description="That End of Day page does not exist."
+>
+  <header class="topbar shell">
+    <a class="brand" href="/" aria-label="End of Day home">
+      <span class="brand-logo-frame" aria-hidden="true">
+        <img src="/images/end-of-day-logo.png" alt="" />
+      </span>
+      <span class="brand-copy">
+        <strong>END OF DAY</strong>
+        <small>EOD • WARDOGS COMMUNITY</small>
+      </span>
+    </a>
+  </header>
+
+  <main class="error-page shell">
+    <div class="error-code">404</div>
+    <p class="section-index">SIGNAL LOST</p>
+    <h1>WRONG<br /><em>GRID SQUARE.</em></h1>
+    <p>
+      Whatever you were looking for isn't here. Head back to End of Day
+      and try another route.
+    </p>
+    <div class="actions">
+      <a class="button button-accent" href="/">RETURN HOME</a>
+      <a
+        class="button button-ghost"
+        href={site.discordUrl}
+        target="_blank"
+        rel="noreferrer"
+      >
+        JOIN DISCORD
+      </a>
+    </div>
+  </main>
+</BaseLayout>

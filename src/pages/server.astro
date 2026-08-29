@@ -1,0 +1,88 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../config/site";
+---
+
+<BaseLayout
+  title={`End of Day WARDOGS Server | ${site.region} Community Server`}
+  description="End of Day is a US East WARDOGS community server coming with Early Access. Teamwork-focused, community-run, and backed by active admins."
+>
+  <header class="topbar shell">
+    <a class="brand" href="/" aria-label="End of Day home">
+      <span class="brand-logo-frame" aria-hidden="true">
+        <img src="/images/end-of-day-logo.png" alt="" />
+      </span>
+      <span class="brand-copy">
+        <strong>END OF DAY</strong>
+        <small>EOD • WARDOGS COMMUNITY</small>
+      </span>
+    </a>
+
+    <nav class="desktop-nav" aria-label="Page navigation">
+      <a href="/server">SERVER</a>
+      <a href="/about">ABOUT</a>
+      <a href="/rules">RULES</a>
+      <a class="nav-button" href="/discord">DISCORD</a>
+    </nav>
+  </header>
+
+  <main class="subpage shell">
+    <section class="subpage-heading server-page-heading">
+      <p class="section-index">EOD / SERVER</p>
+      <h1>YOUR HOME<br /><em>BATTLEFIELD.</em></h1>
+      <p>
+        End of Day is a community-run WARDOGS server coming online with
+        Early Access. The goal is a place people deliberately return to:
+        familiar names, good fights, active admins, and teamwork that doesn't
+        turn the game into a job.
+      </p>
+    </section>
+
+    <section class="server-detail-grid">
+      <article>
+        <small>STATUS</small>
+        <strong>COMING WITH EARLY ACCESS</strong>
+        <p>WARDOGS Early Access begins September 10, 2026.</p>
+      </article>
+
+      <article>
+        <small>REGION</small>
+        <strong>{site.region}</strong>
+        <p>Primary community region and intended server location.</p>
+      </article>
+
+      <article>
+        <small>PLAY STYLE</small>
+        <strong>TEAMWORK / COMBINED ARMS</strong>
+        <p>Coordinate when it matters. Play the role you're good at.</p>
+      </article>
+
+      <article>
+        <small>ADMINISTRATION</small>
+        <strong>ACTIVE</strong>
+        <p>A community server should actually have people taking care of it.</p>
+      </article>
+    </section>
+
+    <section class="server-roadmap">
+      <div>
+        <p class="section-index">SERVER INTEL / NEXT</p>
+        <h2>THIS PAGE GETS<br />BETTER AT LAUNCH.</h2>
+      </div>
+      <p>
+        Once WARDOGS server tooling is available, this page is where we'll expose
+        live status, current population, map, queue, uptime, and connection details.
+      </p>
+    </section>
+
+    <div class="subpage-cta">
+      <div>
+        <small>COMMUNITY OPEN NOW</small>
+        <p>Meet the regulars before the server opens.</p>
+      </div>
+      <a class="button button-accent" href={site.discordUrl} target="_blank" rel="noreferrer">
+        JOIN END OF DAY
+      </a>
+    </div>
+  </main>
+</BaseLayout>

@@ -1,0 +1,86 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../config/site";
+---
+
+<BaseLayout
+  title="About End of Day | WARDOGS Community"
+  description="End of Day (EOD) is a WARDOGS community founded in 2026 around teamwork, good fights, active administration, and a laid-back community."
+>
+  <header class="topbar shell">
+    <a class="brand" href="/" aria-label="End of Day home">
+      <span class="brand-logo-frame" aria-hidden="true">
+        <img src="/images/end-of-day-logo.png" alt="" />
+      </span>
+      <span class="brand-copy">
+        <strong>END OF DAY</strong>
+        <small>EOD • WARDOGS COMMUNITY</small>
+      </span>
+    </a>
+
+    <nav class="desktop-nav" aria-label="Page navigation">
+      <a href="/server">SERVER</a>
+      <a href="/about">ABOUT</a>
+      <a href="/rules">RULES</a>
+      <a class="nav-button" href="/discord">DISCORD</a>
+    </nav>
+  </header>
+
+  <main class="subpage shell">
+    <section class="subpage-heading">
+      <p class="section-index">EOD / ABOUT</p>
+      <h1>END<br /><em>OF DAY.</em></h1>
+      <p>
+        End of Day is a WARDOGS community founded in 2026. We're building a
+        home server around a simple idea: play hard, work together, and don't
+        make the game miserable for everybody else.
+      </p>
+    </section>
+
+    <section class="about-manifesto">
+      <div>
+        <p class="section-index">WHY EOD</p>
+        <h2>A SERVER SHOULD<br />FEEL LIKE A PLACE.</h2>
+      </div>
+      <p>
+        Anonymous matchmaking is fine, but the best multiplayer servers become
+        communities. You recognize the pilot who always gets you there. You know
+        which squad is dangerous. Rivalries develop. People teach new players.
+        You log in because you know who's going to be there.
+      </p>
+    </section>
+
+    <section class="about-values">
+      <article>
+        <span>01</span>
+        <strong>TEAMWORK WITHOUT BUREAUCRACY</strong>
+        <p>Coordinate and help the team. No fake chain of command required.</p>
+      </article>
+      <article>
+        <span>02</span>
+        <strong>COMPETITIVE WITHOUT BEING MISERABLE</strong>
+        <p>We want good fights and players who care about winning without turning every loss into drama.</p>
+      </article>
+      <article>
+        <span>03</span>
+        <strong>COMMUNITY BEFORE NUMBERS</strong>
+        <p>A hundred anonymous members matter less than a smaller group that actually plays together.</p>
+      </article>
+      <article>
+        <span>04</span>
+        <strong>ACTIVE ADMINISTRATION</strong>
+        <p>If we're going to run a server, we're going to take care of it.</p>
+      </article>
+    </section>
+
+    <div class="subpage-cta">
+      <div>
+        <small>EST. 2026</small>
+        <p>Get in before everybody knows the name.</p>
+      </div>
+      <a class="button button-accent" href={site.discordUrl} target="_blank" rel="noreferrer">
+        JOIN END OF DAY
+      </a>
+    </div>
+  </main>
+</BaseLayout>

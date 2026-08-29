@@ -1,0 +1,63 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../config/site";
+
+const rules = [
+  ["BE CIVIL.", "There's levels to trash talk."],
+  ["AVOID BEING A CRASHOUT.", "It's only game, why you have to be mad?"],
+  ["NO NSFW.", "We're all here to play WARDOGS… not share feet pics."],
+  ["ALWAYS TIP YOUR TAXI.", "Help a brother out. They've earned it."],
+  ["GLHF.", "May the best team win."]
+];
+---
+
+<BaseLayout
+  title={`Rules | ${site.communityName} WARDOGS`}
+  description="The End of Day WARDOGS community rules."
+>
+  <header class="topbar shell">
+    <a class="brand" href="/" aria-label="End of Day home">
+      <span class="brand-logo-frame" aria-hidden="true">
+        <img src="/images/end-of-day-logo.png" alt="" />
+      </span>
+      <span class="brand-copy">
+        <strong>END OF DAY</strong>
+        <small>EOD • WARDOGS COMMUNITY</small>
+      </span>
+    </a>
+
+    <nav class="desktop-nav" aria-label="Page navigation">
+      <a href="/server">SERVER</a>
+      <a href="/about">ABOUT</a>
+      <a href="/rules">RULES</a>
+      <a class="nav-button" href="/discord">DISCORD</a>
+    </nav>
+  </header>
+
+  <main class="subpage shell">
+    <div class="subpage-heading">
+      <p class="section-index">EOD / RULES</p>
+      <h1>RULES OF<br /><em>ENGAGEMENT.</em></h1>
+      <p>Keep it civil. Keep it fun. That's most of it.</p>
+    </div>
+
+    <ol class="rules-list subpage-rules">
+      {rules.map(([title, copy], index) => (
+        <li>
+          <span>{String(index + 1).padStart(2, "0")}</span>
+          <div>
+            <strong>{title}</strong>
+            <p>{copy}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+
+    <div class="subpage-cta">
+      <p>Sound reasonable?</p>
+      <a class="button button-accent" href={site.discordUrl} target="_blank" rel="noreferrer">
+        JOIN END OF DAY
+      </a>
+    </div>
+  </main>
+</BaseLayout>
