@@ -2826,6 +2826,275 @@ main {
   }
 }
 
+
+/* ============================================================
+   V17 — WHY EOD
+   ============================================================ */
+
+.why-eod {
+  padding: 92px 0 96px;
+  position: relative;
+  border-bottom: 1px solid var(--line);
+}
+
+.why-eod::before,
+.why-eod::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+
+.why-eod::before {
+  top: 14px;
+  left: 0;
+  border-top: 1px solid rgba(205,211,216,.18);
+  border-left: 1px solid rgba(205,211,216,.18);
+}
+
+.why-eod::after {
+  right: 0;
+  bottom: 14px;
+  border-right: 1px solid rgba(205,211,216,.18);
+  border-bottom: 1px solid rgba(205,211,216,.18);
+}
+
+.why-eod-heading {
+  display: grid;
+  grid-template-columns: .22fr .78fr;
+  gap: 40px;
+  align-items: start;
+}
+
+.why-eod-heading h2 {
+  margin: 0;
+  max-width: 1040px;
+  color: #818a92;
+  font-size: clamp(48px, 6.7vw, 88px);
+  font-weight: 1000;
+  line-height: .9;
+  letter-spacing: -.065em;
+}
+
+.why-eod-heading h2 strong {
+  display: block;
+  color: #eef0f1;
+  font-weight: inherit;
+}
+
+.why-eod-copy {
+  max-width: 800px;
+  margin: 42px 0 0 22%;
+}
+
+.why-eod-copy > p {
+  margin: 0;
+  max-width: 760px;
+  color: #a0a7ad;
+  font-size: clamp(15px, 1.5vw, 18px);
+  line-height: 1.72;
+}
+
+.why-eod-copy blockquote {
+  margin: 32px 0 0;
+  padding: 5px 0 5px 18px;
+  max-width: 720px;
+  color: #b9bec2;
+  border-left: 2px solid var(--accent);
+  font-size: clamp(15px, 1.55vw, 19px);
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.why-eod-copy blockquote strong {
+  color: #eceeef;
+}
+
+.why-eod-pillars {
+  margin-top: 52px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.012), transparent 60%),
+    rgba(8,10,13,.32);
+}
+
+.why-eod-pillars article {
+  min-height: 150px;
+  padding: 26px 28px;
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  gap: 20px;
+  align-items: center;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.why-eod-pillars article:hover {
+  background: rgba(199,52,47,.025);
+}
+
+.why-eod-pillars strong {
+  display: block;
+  color: #e0e3e5;
+  font-size: 13px;
+  letter-spacing: .09em;
+}
+
+.why-eod-pillars p {
+  margin: 7px 0 0;
+  color: #737d85;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.why-eod-icon {
+  width: 46px;
+  height: 46px;
+  position: relative;
+  display: block;
+  color: var(--accent-bright);
+}
+
+/* Familiar names: three deliberately simple "people" marks. */
+.why-eod-icon-people i {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  top: 5px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+
+.why-eod-icon-people i:nth-child(1) { left: 2px; }
+.why-eod-icon-people i:nth-child(2) { left: 17px; top: 1px; }
+.why-eod-icon-people i:nth-child(3) { right: 2px; }
+
+.why-eod-icon-people::before,
+.why-eod-icon-people::after {
+  content: "";
+  position: absolute;
+  bottom: 5px;
+  height: 20px;
+  border: 2px solid currentColor;
+  border-bottom: 0;
+  border-radius: 14px 14px 0 0;
+}
+
+.why-eod-icon-people::before {
+  left: 0;
+  width: 21px;
+}
+
+.why-eod-icon-people::after {
+  right: 0;
+  width: 21px;
+}
+
+/* Good fights: CSS target. */
+.why-eod-icon-target {
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+
+.why-eod-icon-target::before,
+.why-eod-icon-target::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+
+.why-eod-icon-target::before {
+  left: 50%;
+  top: -8px;
+  width: 2px;
+  height: 62px;
+  transform: translateX(-50%);
+}
+
+.why-eod-icon-target::after {
+  top: 50%;
+  left: -8px;
+  width: 62px;
+  height: 2px;
+  transform: translateY(-50%);
+}
+
+.why-eod-icon-target {
+  box-shadow: inset 0 0 0 10px #0a0c0f, inset 0 0 0 12px currentColor;
+}
+
+/* Low drama: abstract shield. */
+.why-eod-icon-shield {
+  width: 42px;
+  height: 48px;
+  border: 2px solid currentColor;
+  clip-path: polygon(50% 0, 94% 18%, 86% 70%, 50% 100%, 14% 70%, 6% 18%);
+}
+
+.why-eod-icon-shield::before {
+  content: "";
+  position: absolute;
+  inset: 9px 10px 12px;
+  border: 2px solid currentColor;
+  clip-path: polygon(50% 0, 94% 18%, 86% 70%, 50% 100%, 14% 70%, 6% 18%);
+}
+
+.hero-side-note p {
+  max-width: 190px;
+  line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+  .why-eod-heading {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .why-eod-copy {
+    margin-left: 0;
+  }
+
+  .why-eod-pillars {
+    grid-template-columns: 1fr;
+  }
+
+  .why-eod-pillars article {
+    min-height: 120px;
+  }
+}
+
+@media (max-width: 620px) {
+  .why-eod {
+    padding: 72px 0 76px;
+  }
+
+  .why-eod-heading h2 {
+    font-size: clamp(42px, 13vw, 64px);
+  }
+
+  .why-eod-copy {
+    margin-top: 30px;
+  }
+
+  .why-eod-pillars {
+    margin-top: 38px;
+  }
+
+  .why-eod-pillars article {
+    padding: 22px;
+    grid-template-columns: 48px 1fr;
+  }
+
+  .why-eod-icon {
+    transform: scale(.82);
+    transform-origin: left center;
+  }
+}
+
 </style>
 </head>
 <body><div class="scroll-progress" aria-hidden="true"></div>
@@ -2844,13 +3113,27 @@ main {
 <p class="hero-lede">A WARDOGS home server for players who want teamwork, good fights, active admins, and a community worth coming back to.</p>
 <div class="actions"><a class="button button-accent" href="https://discord.gg/NVgJ5mpscy" target="_blank" rel="noreferrer">JOIN BEFORE LAUNCH</a><a class="button button-ghost" href="#server">SERVER INTEL</a></div>
 </div>
-<div class="hero-side-note"><span>01</span><strong>COMMUNITY FIRST.</strong><p>THE SERVER IS COMING.</p></div>
+<div class="hero-side-note"><span>01</span><strong>COMMUNITY FIRST.</strong><p>FAMILIAR NAMES. GOOD FIGHTS. LOW DRAMA.</p></div>
 <div class="launch-strip">
 <div><span class="pulse"></span><span>PRE-LAUNCH</span></div>
 <div class="launch-center"><small>SERVER STATUS</small><strong>COMING WITH EARLY ACCESS</strong></div>
 <div class="countdown"><small>EARLY ACCESS COUNTDOWN</small><strong id="countdown-value">CALCULATING…</strong></div>
 </div></section>
-<section class="statement shell reveal"><p class="section-index">00 / MISSION</p><p class="statement-copy">WARDOGS gives players a giant battlefield. <strong>We're building the place you choose to fight on it.</strong></p></section>
+<section class="why-eod shell reveal">
+<div class="why-eod-heading">
+<p class="section-index">01 / WHY EOD</p>
+<h2>A SERVER WHERE<br><strong>YOU RECOGNIZE THE NAMES.</strong></h2>
+</div>
+<div class="why-eod-copy">
+<p>Life is busy. Work runs late. Family comes first. End of Day is built for the time that's left — a place to jump in, see familiar names, get in a good fight, and unwind with people you actually want to play with. We want teamwork, competition, and laughs without the drama, ego, or sweaty try-hard nonsense.</p>
+<blockquote>You don't need another lobby. <strong>You need a place to come back to.</strong></blockquote>
+</div>
+<div class="why-eod-pillars">
+<article><span class="why-eod-icon why-eod-icon-people"><i></i><i></i><i></i></span><div><strong>FAMILIAR NAMES</strong><p>Jump in and see people you know and trust.</p></div></article>
+<article><span class="why-eod-icon why-eod-icon-target"></span><div><strong>GOOD FIGHTS</strong><p>Competitive play with teamwork that actually matters.</p></div></article>
+<article><span class="why-eod-icon why-eod-icon-shield"></span><div><strong>LOW DRAMA</strong><p>No ego contest. No second job. Just good people and good games.</p></div></article>
+</div>
+</section>
 <section class="prelaunch shell reveal"><div class="prelaunch-heading"><p class="section-index">PRE-LAUNCH / JOIN NOW</p><h2>DON'T SHOW UP<br>TO AN EMPTY ROOM.</h2><p>WARDOGS launches September 10. End of Day doesn't have to. Join the Discord now so launch day starts with familiar names instead of a server full of strangers.</p></div><div class="prelaunch-steps"><article><span>01</span><strong>JOIN THE DISCORD</strong><p>Get into the community before the server opens.</p></article><article><span>02</span><strong>MEET THE REGULARS</strong><p>Talk squads, vehicles, flying, server ideas, and whatever else comes up.</p></article><article><span>03</span><strong>BE THERE DAY ONE</strong><p>When the server goes live, you already know where you're playing.</p></article></div><div class="prelaunch-cta"><div><small>WARDOGS EARLY ACCESS</small><strong>SEPTEMBER 10, 2026</strong></div><a class="button button-accent" href="https://discord.gg/NVgJ5mpscy" target="_blank" rel="noreferrer">JOIN THE DISCORD NOW</a></div></section>
 <section class="founding shell reveal">
 <div class="founding-grid">

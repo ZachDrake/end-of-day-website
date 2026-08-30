@@ -1,4 +1,4 @@
-# End of Day Website — V16
+# End of Day Website — V17
 
 V2 turns the landing-page concept into a real Astro project.
 
@@ -363,3 +363,23 @@ This gives Google useful pages for searches such as:
 - WARDOGS US East server
 
 The sitemap will automatically use the real production hostname once `SITE_URL` is set.
+
+
+## V17 — Why EOD
+
+This pass moves the community's actual reason for existing much closer to the top of the funnel.
+
+### Homepage changes
+
+- Replaced the generic `00 / MISSION` statement with a full `01 / WHY EOD` section.
+- Core message: **A server where you recognize the names.**
+- Added the founders' real-life framing: work, family, limited gaming time, and wanting a familiar place to unwind.
+- Added the line: **You don't need another lobby. You need a place to come back to.**
+- Added three compact community pillars:
+  - Familiar Names
+  - Good Fights
+  - Low Drama
+- Updated the hero side note to:
+  **COMMUNITY FIRST. FAMILIAR NAMES. GOOD FIGHTS. LOW DRAMA.**
+
+The goal is deliberate filtering: attract players who want teamwork and competition without drama, ego, or turning the game into a second job.
