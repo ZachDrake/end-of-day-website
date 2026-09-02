@@ -1,8 +1,15 @@
 export const prerender = true;
 
 export function GET({ site }: { site?: URL }) {
-  const base = site ?? new URL("https://example.com");
-  const paths = ["/", "/server", "/discord", "/rules", "/about"];
+  const base = site ?? new URL("https://playendofday.com");
+  const paths = [
+    "/",
+    "/wardogs-community",
+    "/server",
+    "/discord",
+    "/rules",
+    "/about"
+  ];
 
   const urls = paths
     .map((path) => {

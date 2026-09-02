@@ -17,8 +17,8 @@ export const site = {
   earlyAccessDate: "2026-09-10T00:00:00-04:00",
 
   seo: {
-    title: "End of Day | WARDOGS Community Server & Discord",
+    title: "WARDOGS Community & US East Server | End of Day",
     description:
-      "Join End of Day, a community-run WARDOGS Discord and upcoming server built around teamwork, combined arms, active admins, and regular players."
+      "Join End of Day, a US East WARDOGS community with its own server at launch. Teamwork, familiar names, active admins, and low drama."
   }
 };

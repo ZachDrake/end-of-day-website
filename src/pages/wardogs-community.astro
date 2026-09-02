@@ -1,0 +1,118 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../config/site";
+---
+
+<BaseLayout
+  title="WARDOGS Community & US East Server | End of Day"
+  description="Join End of Day, a US East WARDOGS community with its own community server at launch. Teamwork, familiar names, active admins, and low drama."
+>
+  <header class="topbar shell">
+    <a class="brand" href="/" aria-label="End of Day home">
+      <span class="brand-logo-frame" aria-hidden="true">
+        <img src="/images/end-of-day-logo.png" alt="" />
+      </span>
+      <span class="brand-copy">
+        <strong>END OF DAY</strong>
+        <small>EOD • WARDOGS COMMUNITY</small>
+      </span>
+    </a>
+
+    <nav class="desktop-nav" aria-label="Page navigation">
+      <a href="/wardogs-community" aria-current="page">COMMUNITY</a>
+      <a href="/server">SERVER</a>
+      <a href="/about">ABOUT</a>
+      <a href="/rules">RULES</a>
+      <a class="nav-button" href="/discord">DISCORD</a>
+    </nav>
+  </header>
+
+  <main class="subpage shell community-page">
+    <section class="subpage-heading">
+      <p class="section-index">EOD / WARDOGS COMMUNITY</p>
+      <h1>A COMMUNITY<br />BUILT FOR THE<br /><em>REGULARS.</em></h1>
+      <p>
+        End of Day is a US East WARDOGS community for players who want
+        teamwork, familiar names, and good fights without the sweat or drama.
+      </p>
+    </section>
+
+    <section class="community-story">
+      <div>
+        <p class="section-index">WHY END OF DAY</p>
+        <h2>A SERVER WHERE<br />YOU RECOGNIZE<br />THE NAMES.</h2>
+      </div>
+
+      <div class="community-story-copy">
+        <p>
+          EOD was created by people with jobs, families, and busy lives. At the
+          end of the day, we want somewhere to jump on, play with people we
+          know, have some good matches, and unwind.
+        </p>
+        <p>
+          We're not trying to build the biggest WARDOGS community.
+          <strong>We're trying to build one worth coming back to.</strong>
+        </p>
+      </div>
+    </section>
+
+    <section class="community-launch">
+      <div>
+        <p class="section-index">COMMUNITY SERVER / LAUNCH</p>
+        <h2>A CONSISTENT<br />HOME FROM<br />DAY ONE.</h2>
+      </div>
+
+      <div class="community-launch-copy">
+        <p>
+          End of Day will host its own WARDOGS community server at launch,
+          giving the group a consistent place to play from day one.
+        </p>
+        <p>
+          Expect active admins, a low-drama environment, and a community
+          focused on teamwork without taking itself too seriously.
+        </p>
+        <a class="inline-link" href="/server">VIEW EOD SERVER INFORMATION</a>
+      </div>
+    </section>
+
+    <section class="community-fit">
+      <div class="community-fit-heading">
+        <p class="section-index">WHO FITS IN AT EOD?</p>
+        <h2>BE SOMEONE PEOPLE<br />ARE HAPPY TO SEE LOG IN.</h2>
+        <p>
+          You don't need to be a hardcore milsim player, and you don't need to
+          play every night. Communicate, play the objective, help newer players,
+          and leave the drama somewhere else.
+        </p>
+      </div>
+
+      <div class="community-fit-grid">
+        <article>
+          <span>01</span>
+          <strong>TEAMWORK</strong>
+          <p>Coordinate when it matters and help the team without pretending the game is a job.</p>
+        </article>
+        <article>
+          <span>02</span>
+          <strong>FAMILIAR NAMES</strong>
+          <p>Show up often enough to become part of the server, not another anonymous player.</p>
+        </article>
+        <article>
+          <span>03</span>
+          <strong>LOW DRAMA</strong>
+          <p>Play hard, have a laugh, and don't make everybody else's night miserable.</p>
+        </article>
+      </div>
+    </section>
+
+    <div class="subpage-cta">
+      <div>
+        <small>COMMUNITY OPEN NOW</small>
+        <p>Meet the regulars before the EOD server goes live.</p>
+      </div>
+      <a class="button button-accent" href={site.discordUrl} target="_blank" rel="noreferrer">
+        JOIN END OF DAY
+      </a>
+    </div>
+  </main>
+</BaseLayout>

@@ -13,6 +13,7 @@ const {
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
+const socialImageURL = new URL("/images/end-of-day-og.png", canonicalURL.origin);
 ---
 
 <!doctype html>
@@ -38,15 +39,31 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
     <meta name="theme-color" content="#0a0c0f" />
     <link rel="icon" type="image/png" href="/images/favicon-64.png" />
     <link rel="apple-touch-icon" href="/images/end-of-day-icon-192.png" />
-    <meta property="og:image" content="/images/end-of-day-icon-512.png" />
-    <meta name="twitter:image" content="/images/end-of-day-icon-512.png" />
+    <meta property="og:image" content={socialImageURL} />
+    <meta name="twitter:image" content={socialImageURL} />
 
     <script type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
-      "@type": "WebSite",
-      name: site.communityName,
-      url: canonicalURL.origin,
-      description
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": `${canonicalURL.origin}/#website`,
+          name: site.communityName,
+          alternateName: [site.shortName, "End of Day WARDOGS Community"],
+          url: canonicalURL.origin,
+          description
+        },
+        {
+          "@type": "Organization",
+          "@id": `${canonicalURL.origin}/#organization`,
+          name: site.communityName,
+          alternateName: site.shortName,
+          url: canonicalURL.origin,
+          logo: new URL("/images/end-of-day-logo.png", canonicalURL.origin).toString(),
+          description:
+            "A US East WARDOGS community built around familiar names, teamwork, active admins, and low drama."
+        }
+      ]
     })} />
   </head>
 
