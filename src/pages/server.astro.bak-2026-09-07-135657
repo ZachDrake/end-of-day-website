@@ -1,11 +1,11 @@
-﻿---
+---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { site } from "../config/site";
 ---
 
 <BaseLayout
   title={`End of Day WARDOGS Server | ${site.region} Community Server`}
-  description="End of Day is a 100-player WARDOGS community server hosted in Chicago by BisectHosting. Teamwork-focused, community-run, and backed by active admins."
+  description="End of Day is a US East WARDOGS community server coming with Early Access. Teamwork-focused, community-run, and backed by active admins."
 >
   <header class="topbar shell">
     <a class="brand" href="/" aria-label="End of Day home">
@@ -43,14 +43,14 @@ import { site } from "../config/site";
     <section class="server-detail-grid">
       <article>
         <small>STATUS</small>
-        <strong>SERVER SECURED</strong>
+        <strong>COMING WITH EARLY ACCESS</strong>
         <p>WARDOGS Early Access begins September 10, 2026.</p>
       </article>
 
       <article>
         <small>REGION</small>
         <strong>{site.region}</strong>
-        <p>Centrally hosted in Chicago for EOD players across the United States.</p>
+        <p>Primary community region and intended server location.</p>
       </article>
 
       <article>

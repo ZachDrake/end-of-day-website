@@ -1,8 +1,8 @@
-﻿export const site = {
+export const site = {
   communityName: "End of Day",
   shortName: "EOD",
   serverName: "END OF DAY | COMMUNITY SERVER",
-  region: "CHICAGO, IL",
+  region: "US EAST",
   language: "ENGLISH",
   playStyle: "TEAMWORK / COMBINED ARMS",
 
@@ -12,13 +12,13 @@
 
   // Keep this as pre-launch until the community server is live.
   serverState: "PRE-LAUNCH",
-  serverStateDetail: "100 PLAYER SERVER • CHICAGO • BISECTHOSTING",
+  serverStateDetail: "SERVER COMING WITH EARLY ACCESS",
 
   earlyAccessDate: "2026-09-10T00:00:00-04:00",
 
   seo: {
-    title: "WARDOGS Community Server | End of Day",
+    title: "WARDOGS Community & US East Server | End of Day",
     description:
-      "Join End of Day, a Chicago WARDOGS community with its own server at launch. Teamwork, familiar names, active admins, and low drama."
+      "Join End of Day, a US East WARDOGS community with its own server at launch. Teamwork, familiar names, active admins, and low drama."
   }
 };

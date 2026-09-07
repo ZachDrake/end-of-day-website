@@ -1,11 +1,11 @@
-﻿---
+---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { site } from "../config/site";
 ---
 
 <BaseLayout
-  title="WARDOGS Community Server | End of Day"
-  description="Join End of Day, a WARDOGS community with a 100-player server hosted in Chicago by BisectHosting. Teamwork, familiar names, active admins, and low drama."
+  title="WARDOGS Community & US East Server | End of Day"
+  description="Join End of Day, a US East WARDOGS community with its own community server at launch. Teamwork, familiar names, active admins, and low drama."
 >
   <header class="topbar shell">
     <a class="brand" href="/" aria-label="End of Day home">
@@ -32,7 +32,7 @@ import { site } from "../config/site";
       <p class="section-index">EOD / WARDOGS COMMUNITY</p>
       <h1>A COMMUNITY<br />BUILT FOR THE<br /><em>REGULARS.</em></h1>
       <p>
-        End of Day is a WARDOGS community with a 100-player Chicago server for players who want
+        End of Day is a US East WARDOGS community for players who want
         teamwork, familiar names, and good fights without the sweat or drama.
       </p>
     </section>

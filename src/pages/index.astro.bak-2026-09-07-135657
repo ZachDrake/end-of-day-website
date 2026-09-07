@@ -1,4 +1,4 @@
-﻿---
+---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { site } from "../config/site";
 import { media } from "../config/media";
@@ -106,7 +106,7 @@ const rules = [
         </div>
         <div class="launch-center">
           <small>SERVER STATUS</small>
-          <strong>100 PLAYER SERVER • CHICAGO</strong>
+          <strong>COMING WITH EARLY ACCESS</strong>
         </div>
         <div class="countdown" data-launch-date={site.earlyAccessDate}>
           <small>EARLY ACCESS COUNTDOWN</small>

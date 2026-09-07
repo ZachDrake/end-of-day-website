@@ -1,4 +1,4 @@
-﻿---
+---
 import "../styles/global.css";
 import { site } from "../config/site";
 
@@ -61,7 +61,7 @@ const socialImageURL = new URL("/images/end-of-day-og.png", canonicalURL.origin)
           url: canonicalURL.origin,
           logo: new URL("/images/end-of-day-logo.png", canonicalURL.origin).toString(),
           description:
-            "A WARDOGS community with a 100-player Chicago server, built around familiar names, teamwork, active admins, and low drama."
+            "A US East WARDOGS community built around familiar names, teamwork, active admins, and low drama."
         }
       ]
     })} />
