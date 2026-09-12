@@ -1,7 +1,7 @@
-﻿export const site = {
+export const site = {
   communityName: "End of Day",
   shortName: "EOD",
-  serverName: "END OF DAY | COMMUNITY SERVER",
+  serverName: "END OF DAY | US | COMMUNITY",
   region: "CHICAGO, IL",
   language: "ENGLISH",
   playStyle: "TEAMWORK / COMBINED ARMS",
@@ -10,8 +10,8 @@
   discordUrl: "https://discord.gg/NVgJ5mpscy",
   steamUrl: "https://store.steampowered.com/app/1867240/WARDOGS/",
 
-  // Keep this as pre-launch until the community server is live.
-  serverState: "PRE-LAUNCH",
+  // Community server is live.
+  serverState: "LIVE",
   serverStateDetail: "100 PLAYER SERVER • CHICAGO • BISECTHOSTING",
 
   earlyAccessDate: "2026-09-10T00:00:00-04:00",
