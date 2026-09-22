@@ -5,25 +5,15 @@ import { site } from "../config/site";
 
 <BaseLayout
   title={`End of Day WARDOGS Server | ${site.region} Community Server`}
-  description="End of Day is a 100-player WARDOGS community server hosted in Chicago by BisectHosting. Teamwork-focused, community-run, and backed by active admins."
+  description="Live status and 24-hour population history for the End of Day 100-player WARDOGS community server in Chicago."
 >
   <header class="topbar shell">
     <a class="brand" href="/" aria-label="End of Day home">
-      <span class="brand-logo-frame" aria-hidden="true">
-        <img src="/images/end-of-day-logo.png" alt="" />
-      </span>
-      <span class="brand-copy">
-        <strong>END OF DAY</strong>
-        <small>EOD • WARDOGS COMMUNITY</small>
-      </span>
+      <span class="brand-logo-frame" aria-hidden="true"><img src="/images/end-of-day-logo.png" alt="" /></span>
+      <span class="brand-copy"><strong>END OF DAY</strong><small>EOD • WARDOGS COMMUNITY</small></span>
     </a>
-
     <nav class="desktop-nav" aria-label="Page navigation">
-      <a href="/wardogs-community">COMMUNITY</a>
-      <a href="/server">SERVER</a>
-      <a href="/about">ABOUT</a>
-      <a href="/rules">RULES</a>
-      <a class="nav-button" href="/discord">DISCORD</a>
+      <a href="/wardogs-community">COMMUNITY</a><a href="/server">SERVER</a><a href="/about">ABOUT</a><a href="/rules">RULES</a><a class="nav-button" href="/discord">DISCORD</a>
     </nav>
   </header>
 
@@ -32,59 +22,108 @@ import { site } from "../config/site";
       <p class="section-index">EOD / SERVER</p>
       <h1>YOUR HOME<br /><em>BATTLEFIELD.</em></h1>
       <p>
-        End of Day is a community-run WARDOGS server coming online with
-        Early Access. The goal is a place people deliberately return to:
-        familiar names, good fights, active admins, and teamwork that doesn't
-        turn the game into a job.
+        A 100-player WARDOGS community server built around familiar names, good fights,
+        active admins, and teamwork that doesn't turn the game into a job.
         <a class="inline-link" href="/wardogs-community">Meet the community behind the server.</a>
       </p>
     </section>
 
+    <section class="live-server-panel" id="live-server" aria-live="polite">
+      <div class="live-server-topline">
+        <div><p class="section-index">LIVE SERVER INTEL</p><h2>END OF DAY</h2></div>
+        <div class="live-state"><span class="live-dot"></span><strong id="server-state">CHECKING...</strong></div>
+      </div>
+
+      <div class="live-server-metrics">
+        <article><small>PLAYERS</small><strong id="server-players">— / 100</strong></article>
+        <article><small>MAP</small><strong id="server-map">—</strong></article>
+        <article><small>24H PEAK</small><strong id="server-peak">—</strong></article>
+        <article><small>REGION</small><strong>CHICAGO</strong></article>
+      </div>
+
+      <div class="population-chart-wrap">
+        <div class="chart-heading">
+          <div><small>SERVER POPULATION</small><strong>LAST 24 HOURS</strong></div>
+          <span id="server-updated">LOADING TELEMETRY...</span>
+        </div>
+        <svg id="population-chart" class="population-chart" viewBox="0 0 1000 260" preserveAspectRatio="none" role="img" aria-label="EOD server population over the last 24 hours">
+          <line x1="0" y1="259" x2="1000" y2="259" class="chart-axis" />
+          <polyline id="population-line" points="" class="chart-line" />
+        </svg>
+        <div class="chart-scale"><span>24 HOURS AGO</span><span>NOW</span></div>
+      </div>
+
+      <div class="seed-callout" id="seed-callout">
+        <div><small id="seed-label">SERVER STATUS</small><strong id="seed-title">CHECKING EOD...</strong><p id="seed-copy">Fetching the latest community-server telemetry.</p></div>
+        <a class="button button-accent" href={site.discordUrl} target="_blank" rel="noreferrer">JOIN THE COMMUNITY</a>
+      </div>
+    </section>
+
     <section class="server-detail-grid">
-      <article>
-        <small>STATUS</small>
-        <strong>SERVER LIVE</strong>
-        <p>The End of Day WARDOGS community server is live now.</p>
-      </article>
-
-      <article>
-        <small>REGION</small>
-        <strong>{site.region}</strong>
-        <p>Centrally hosted in Chicago for EOD players across the United States.</p>
-      </article>
-
-      <article>
-        <small>PLAY STYLE</small>
-        <strong>TEAMWORK / COMBINED ARMS</strong>
-        <p>Coordinate when it matters. Play the role you're good at.</p>
-      </article>
-
-      <article>
-        <small>ADMINISTRATION</small>
-        <strong>ACTIVE</strong>
-        <p>A community server should actually have people taking care of it.</p>
-      </article>
+      <article><small>CAPACITY</small><strong>100 PLAYERS</strong><p>Large-scale community battles with room for the regulars.</p></article>
+      <article><small>REGION</small><strong>{site.region}</strong><p>Centrally hosted in Chicago for EOD players across the United States.</p></article>
+      <article><small>PLAY STYLE</small><strong>TEAMWORK / COMBINED ARMS</strong><p>Coordinate when it matters. Play the role you're good at.</p></article>
+      <article><small>ADMINISTRATION</small><strong>ACTIVE</strong><p>A community server should actually have people taking care of it.</p></article>
     </section>
 
-    <section class="server-roadmap">
-      <div>
-        <p class="section-index">SERVER INTEL / NEXT</p>
-        <h2>SERVER INTEL GETS<br />BETTER FROM HERE.</h2>
-      </div>
-      <p>
-        Once WARDOGS server tooling is available, this page is where we'll expose
-        live status, current population, map, queue, uptime, and connection details.
-      </p>
-    </section>
+    <div class="subpage-cta"><div><small>FIND YOUR SQUAD</small><p>Meet the regulars and help seed EOD when the server is quiet.</p></div><a class="button button-accent" href={site.discordUrl} target="_blank" rel="noreferrer">JOIN END OF DAY</a></div>
 
-    <div class="subpage-cta">
-      <div>
-        <small>COMMUNITY OPEN NOW</small>
-        <p>Meet the regulars and find your squad.</p>
-      </div>
-      <a class="button button-accent" href={site.discordUrl} target="_blank" rel="noreferrer">
-        JOIN END OF DAY
-      </a>
-    </div>
+    <p class="server-data-credit">Server telemetry provided by <a href="https://wardogservers.com" target="_blank" rel="noreferrer">Wardog Servers</a>.</p>
   </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const setText = (id, text) => { const el = $(id); if (el) el.textContent = text; };
+
+    function drawChart(history) {
+      const line = $("population-line");
+      if (!line || !history?.length) return;
+      const width = 1000, height = 250, maxPlayers = 100;
+      const points = history.map((sample, i) => {
+        const x = history.length === 1 ? width : (i / (history.length - 1)) * width;
+        const y = height - (Math.min(maxPlayers, Math.max(0, sample.players)) / maxPlayers) * height;
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      });
+      line.setAttribute("points", points.join(" "));
+    }
+
+    function updateMessage(players, capacity, online) {
+      if (!online) {
+        setText("seed-label", "SERVER OFFLINE"); setText("seed-title", "EOD IS CURRENTLY OFFLINE"); setText("seed-copy", "Check Discord for server updates and the next community session."); return;
+      }
+      if (players >= capacity) {
+        setText("seed-label", "SERVER FULL"); setText("seed-title", "EOD IS PACKED"); setText("seed-copy", "100 players are in the fight. Join Discord and watch for an opening."); return;
+      }
+      if (players <= 10) {
+        setText("seed-label", "HELP SEED EOD"); setText("seed-title", "HELP GET TONIGHT'S SERVER GOING"); setText("seed-copy", "A few regulars jumping in is often all it takes to get the server moving."); return;
+      }
+      setText("seed-label", "SERVER ACTIVE"); setText("seed-title", "EOD IS IN THE FIGHT"); setText("seed-copy", `${players} players are online right now. Grab your squad and jump in.`);
+    }
+
+    async function refreshServer() {
+      try {
+        const response = await fetch("/api/server-status", { headers: { "Accept": "application/json" } });
+        if (!response.ok) throw new Error("status request failed");
+        const payload = await response.json();
+        if (!payload.ok) throw new Error("status unavailable");
+        const s = payload.server;
+        setText("server-state", s.online ? "ONLINE" : "OFFLINE");
+        setText("server-players", `${s.players} / ${s.capacity}`);
+        setText("server-map", s.map || "UNKNOWN");
+        setText("server-peak", `${s.peak24h} / ${s.capacity}`);
+        const updated = payload.meta?.fetchedAt ? new Date(payload.meta.fetchedAt) : null;
+        setText("server-updated", updated ? `UPDATED ${updated.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}${payload.meta.stale ? " • STALE" : ""}` : "LIVE DATA");
+        $("live-server")?.classList.toggle("is-offline", !s.online);
+        drawChart(payload.history);
+        updateMessage(s.players, s.capacity, s.online);
+      } catch {
+        setText("server-state", "DATA UNAVAILABLE");
+        setText("server-updated", "TELEMETRY TEMPORARILY UNAVAILABLE");
+        setText("seed-label", "STATUS UNKNOWN"); setText("seed-title", "EOD TELEMETRY IS TEMPORARILY UNAVAILABLE"); setText("seed-copy", "The server may still be online. Check Discord for the latest status.");
+      }
+    }
+
+    refreshServer();
+    window.setInterval(refreshServer, 180000);
+  </script>
 </BaseLayout>
