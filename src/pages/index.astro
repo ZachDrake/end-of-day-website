@@ -123,6 +123,32 @@ const rules = [
       </a>
     </section>
 
+    <section class="home-live shell reveal" id="live-now" aria-live="polite">
+      <a class="home-live-card" href="/server" aria-label="View live End of Day server status">
+        <div class="home-live-state">
+          <span class="home-live-dot"></span>
+          <div>
+            <small>LIVE SERVER</small>
+            <strong id="home-server-state">CHECKING EOD...</strong>
+          </div>
+        </div>
+
+        <div class="home-live-population">
+          <strong id="home-server-players">— / 100</strong>
+          <span id="home-server-message">Fetching live server telemetry.</span>
+        </div>
+
+        <div class="home-live-meta">
+          <span><small>MAP</small><strong id="home-server-map">—</strong></span>
+          <span><small>REGION</small><strong>CHICAGO</strong></span>
+        </div>
+
+        <div class="home-live-action">
+          <span>VIEW LIVE SERVER</span><strong aria-hidden="true">→</strong>
+        </div>
+      </a>
+    </section>
+
     <section class="prelaunch shell reveal" aria-labelledby="prelaunch-title">
       <div class="prelaunch-heading">
         <p class="section-index">LIVE NOW / JOIN NOW</p>
@@ -505,6 +531,41 @@ const rules = [
       const launchNode = document.querySelector("[data-launch-date]");
       const countdownOutput = document.querySelector("#countdown-value");
 
+      const updateHomeServer = async () => {
+        const state = document.querySelector("#home-server-state");
+        const players = document.querySelector("#home-server-players");
+        const map = document.querySelector("#home-server-map");
+        const message = document.querySelector("#home-server-message");
+        const card = document.querySelector(".home-live-card");
+        if (!state || !players || !map || !message || !card) return;
+
+        try {
+          const response = await fetch("/api/server-status", { headers: { Accept: "application/json" } });
+          if (!response.ok) throw new Error("status request failed");        
+          const payload = await response.json();
+          if (!payload.ok) throw new Error("status unavailable");
+
+          const server = payload.server;
+          state.textContent = server.online ? "ONLINE" : "OFFLINE";
+          players.textContent = `${server.players} / ${server.capacity}`;
+          map.textContent = server.map || "UNKNOWN";
+          card.classList.toggle("is-offline", !server.online);
+          card.classList.toggle("is-full", server.online && server.players >= server.capacity);
+          card.classList.toggle("is-seeding", server.online && server.players <= 10);
+
+          if (!server.online) message.textContent = "Server offline — check Discord for updates.";
+          else if (server.players >= server.capacity) message.textContent = "EOD is packed tonight.";
+          else if (server.players <= 10) message.textContent = "Help seed EOD and get tonight's fight moving.";
+          else message.textContent = "EOD is in the fight — grab your squad.";
+        } catch {
+          state.textContent = "STATUS UNAVAILABLE";
+          players.textContent = "— / 100";
+          map.textContent = "—";
+          message.textContent = "Live telemetry is temporarily unavailable.";
+          card.classList.add("is-offline");
+        }
+      };
+
       const updateCountdown = () => {
         if (!launchNode || !countdownOutput) return;
 
@@ -605,10 +666,12 @@ const rules = [
 
       updateCountdown();
       updateScroll();
+      updateHomeServer();
 
       window.addEventListener("scroll", updateScroll, { passive: true });
       window.addEventListener("resize", updateScroll);
       setInterval(updateCountdown, 30000);
+      setInterval(updateHomeServer, 180000);
     })();
   </script>
 </BaseLayout>
