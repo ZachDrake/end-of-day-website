@@ -71,7 +71,53 @@ async function fetchAllPlayers(apiKey) {
     }
   }
 
-  return players.map(sanitizePlayer).filter((player) => player.uuid);
+const uniquePlayers = new Map();
+
+for (const rawPlayer of players) {
+  const player = sanitizePlayer(rawPlayer);
+
+  if (!player.uuid) {
+    continue;
+  }
+
+  const existing = uniquePlayers.get(player.uuid);
+
+  if (!existing) {
+    uniquePlayers.set(player.uuid, player);
+    continue;
+  }
+
+  const existingTime = existing.lastSeen
+    ? Date.parse(existing.lastSeen)
+    : 0;
+
+  const playerTime = player.lastSeen
+    ? Date.parse(player.lastSeen)
+    : 0;
+
+  if (playerTime > existingTime) {
+    uniquePlayers.set(player.uuid, player);
+    continue;
+  }
+
+  if (playerTime === existingTime) {
+    const existingScore =
+      existing.kills +
+      existing.deaths +
+      existing.cash;
+
+    const playerScore =
+      player.kills +
+      player.deaths +
+      player.cash;
+
+    if (playerScore > existingScore) {
+      uniquePlayers.set(player.uuid, player);
+    }
+  }
+}
+
+return [...uniquePlayers.values()];
 }
 
 async function syncSeason(context, seasonId) {
