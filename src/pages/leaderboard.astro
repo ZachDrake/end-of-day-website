@@ -1,0 +1,414 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../config/site";
+---
+
+<BaseLayout title="Leaderboard | End of Day" description="Find your place on the End of Day WARDOGS leaderboard. Browse player kills, deaths, K/D, and cash by season.">
+  <div class="lb-page">
+    <header class="lb-header shell">
+      <a class="brand" href="/" aria-label={`${site.communityName} home`}>
+        <span class="brand-logo-frame" aria-hidden="true"><img src="/images/end-of-day-logo.png" alt="" /></span>
+        <span class="brand-copy"><strong>END OF DAY</strong><small>EOD • WARDOGS COMMUNITY</small></span>
+      </a>
+      <nav class="lb-nav" aria-label="Main navigation">
+        <a href="/server">SERVER</a>
+        <a href="/leaderboard" aria-current="page">LEADERBOARD</a>
+        <a class="nav-button" href={site.discordUrl} target="_blank" rel="noreferrer">DISCORD ↗</a>
+      </nav>
+    </header>
+
+    <main class="shell lb-main" id="main-content">
+      <section class="lb-hero" aria-labelledby="lb-title">
+        <div>
+          <p class="lb-eyebrow">END OF DAY / PLAYER STATS</p>
+          <h1 id="lb-title">FAMILIAR NAMES.<br /><em>FRIENDLY RIVALRIES.</em></h1>
+          <p class="lb-lede">Find your squad. Check your stats. See who's putting in the work.</p>
+        </div>
+        <div class="lb-season-box">
+          <label for="lb-season">SEASON</label>
+          <select id="lb-season" disabled><option>Loading seasons…</option></select>
+          <span id="lb-season-state">STATS ON EOD</span>
+        </div>
+      </section>
+
+      <div class="lb-meta">
+        <p><strong id="lb-total">—</strong> <span>PLAYERS THIS SEASON</span></p>
+        <p id="lb-sync">Fetching the latest available stats…</p>
+      </div>
+      <div id="lb-notice" class="lb-notice" role="status" hidden></div>
+
+      <section class="lb-leaders-section" aria-labelledby="lb-leaders-title">
+        <div class="lb-section-heading"><h2 id="lb-leaders-title">LEADING THE FIGHT</h2><span>MOST KILLS / ENTIRE SEASON</span></div>
+        <div id="lb-leaders" class="lb-leaders" aria-busy="true"><p class="lb-muted">Loading season leaders…</p></div>
+      </section>
+
+      <section class="lb-board" aria-labelledby="lb-board-title">
+        <div class="lb-board-heading"><h2 id="lb-board-title">THE ROSTER</h2><span id="lb-match-count">ALL PLAYERS</span></div>
+        <form id="lb-form" class="lb-toolbar" role="search">
+          <div class="lb-search-field"><label for="lb-search">FIND A PLAYER</label><input id="lb-search" type="search" maxlength="100" placeholder="Search player name…" autocomplete="off" /></div>
+          <div><label for="lb-sort">SORT BY</label><select id="lb-sort"><option value="kills">Kills</option><option value="deaths">Deaths</option><option value="kd">K/D</option><option value="cash">Cash</option></select></div>
+          <div><label for="lb-order">ORDER</label><select id="lb-order"><option value="desc">Highest first</option><option value="asc">Lowest first</option></select></div>
+          <button id="lb-clear" type="button" class="lb-button">CLEAR SEARCH</button>
+        </form>
+
+        <p id="lb-status" class="lb-status" role="status" aria-live="polite">Loading player stats…</p>
+        <button id="lb-retry" class="lb-button lb-retry" type="button" hidden>TRY AGAIN</button>
+        <noscript><p class="lb-status">Enable JavaScript to search and browse the leaderboard.</p></noscript>
+        <div id="lb-results" class="lb-results" aria-busy="true">
+          <div class="lb-table-scroll" role="region" aria-label="Player statistics; scroll horizontally for more columns" tabindex="0">
+            <table class="lb-table">
+              <caption class="lb-sr-only">Players ranked by the selected statistic across the selected season. Search preserves that rank.</caption>
+              <thead><tr>
+                <th scope="col">RANK</th><th scope="col">PLAYER</th>
+                <th scope="col" data-sort-heading="kills" aria-sort="descending"><button type="button" data-sort="kills">KILLS <span aria-hidden="true">↓</span></button></th>
+                <th scope="col" data-sort-heading="deaths"><button type="button" data-sort="deaths">DEATHS <span aria-hidden="true">↕</span></button></th>
+                <th scope="col" data-sort-heading="kd"><button type="button" data-sort="kd">K/D <span aria-hidden="true">↕</span></button></th>
+                <th scope="col" data-sort-heading="cash"><button type="button" data-sort="cash">CASH <span aria-hidden="true">↕</span></button></th>
+                <th scope="col">FACTION</th><th scope="col">LAST SEEN</th>
+              </tr></thead>
+              <tbody id="lb-rows"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="lb-pagination">
+          <p id="lb-range">—</p>
+          <nav aria-label="Leaderboard pages"><button id="lb-prev" type="button" class="lb-button" disabled>← PREVIOUS</button><span id="lb-page-number">PAGE —</span><button id="lb-next" type="button" class="lb-button" disabled>NEXT →</button></nav>
+        </div>
+      </section>
+
+      <aside class="lb-notes" aria-label="About these stats">
+        <p><strong>KNOW THE NUMBERS.</strong> Stats reflect the latest player records available from our server host. Active-season data refreshes when requested after a 30-minute sync window; cached results may take a few extra minutes to update.</p>
+        <p>K/D is kills divided by deaths. Positive kills with zero deaths display as ∞; 0 kills and 0 deaths display as 0.00. Ranks follow your selected sort. Season leaders always show most kills.</p>
+        <p>Longest kills, headshots, and weapon stats are not being tracked yet.</p>
+      </aside>
+      <section class="lb-join"><div><p class="lb-eyebrow">MORE THAN A NAME ON A BOARD.</p><h2>FIND YOUR PEOPLE.</h2></div><a class="lb-button lb-button-accent" href={site.discordUrl} target="_blank" rel="noreferrer">JOIN THE DISCORD ↗</a></section>
+    </main>
+    <footer class="lb-footer shell"><span>END OF DAY / EST. 2026</span><a href="/">HOME</a><a href="/server">SERVER INFO</a><a href="/rules">RULES</a></footer>
+  </div>
+
+  <script is:inline>
+    (() => {
+      const $ = (id) => document.getElementById(id);
+      const params = new URLSearchParams(location.search);
+      const validSorts = ["kills", "deaths", "kd", "cash"];
+      const state = {
+        season: params.get("season") || "",
+        q: (params.get("q") || "").slice(0, 100),
+        sort: validSorts.includes(params.get("sort")) ? params.get("sort") : "kills",
+        order: params.get("order") === "asc" ? "asc" : "desc",
+        page: /^\d+$/.test(params.get("page") || "") ? Math.max(1, Math.min(1000000, Number(params.get("page")))) : 1
+      };
+      let controller;
+      let requestId = 0;
+      let debounce;
+      let totalPages = 1;
+      const integer = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 });
+      const decimal = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const number = (value) => Number.isFinite(Number(value)) ? Number(value) : 0;
+      const kd = (player) => number(player.deaths) === 0
+        ? (number(player.kills) > 0 ? "∞" : "0.00")
+        : decimal.format(number(player.kills) / number(player.deaths));
+      const parseDate = (value) => {
+        if (!value) return null;
+        // SQLite CURRENT_TIMESTAMP is UTC without an explicit zone.
+        let normalized = String(value).replace(" ", "T");
+        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$/.test(normalized)) normalized += "Z";
+        const date = new Date(normalized);
+        return Number.isNaN(date.getTime()) ? null : date;
+      };
+      const element = (tag, className, text) => {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined) node.textContent = String(text);
+        return node;
+      };
+      $("lb-search").value = state.q;
+      $("lb-sort").value = state.sort;
+      $("lb-order").value = state.order;
+
+      const renderLeaders = (players) => {
+        const container = $("lb-leaders");
+        container.replaceChildren();
+        if (!players.length) container.append(element("p", "lb-muted", "The first names of this season will appear here."));
+        players.forEach((player, index) => {
+          const card = element("article", "lb-leader" + (index === 0 ? " lb-leader-first" : ""));
+          card.append(element("span", "lb-leader-rank", String(index + 1).padStart(2, "0")));
+          const content = element("div", "lb-leader-content");
+          content.append(element("p", "lb-leader-label", index === 0 ? "SETTING THE PACE" : "IN THE FIGHT"));
+          content.append(element("h3", "lb-player-name", player.username || "Unknown"));
+          content.append(element("p", "lb-leader-faction", player.faction || "Unknown"));
+          const stats = element("div", "lb-leader-stats");
+          stats.append(element("strong", "", integer.format(number(player.kills))), element("span", "", "KILLS"), element("small", "", kd(player) + " K/D"));
+          content.append(stats);
+          card.append(content);
+          container.append(card);
+        });
+      };
+
+      const renderRows = (players) => {
+        const fragment = document.createDocumentFragment();
+        players.forEach((player) => {
+          const row = element("tr", "");
+          row.append(element("td", "lb-rank", "#" + integer.format(number(player.rank))));
+          row.append(element("th", "lb-player-name", player.username || "Unknown"));
+          row.lastChild.scope = "row";
+          row.append(element("td", "lb-number lb-kills", integer.format(number(player.kills))));
+          row.append(element("td", "lb-number", integer.format(number(player.deaths))));
+          const kdCell = element("td", "lb-number", kd(player));
+          if (kd(player) === "∞") kdCell.setAttribute("aria-label", "No deaths; K/D is infinite");
+          row.append(kdCell, element("td", "lb-number", "$" + integer.format(number(player.cash))));
+          const faction = element("td", "");
+          faction.append(element("span", "lb-faction", player.faction || "Unknown"));
+          row.append(faction);
+          const seen = element("td", "lb-seen");
+          const date = parseDate(player.lastSeen);
+          if (date) {
+            const time = element("time", "", date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }));
+            time.dateTime = date.toISOString();
+            time.title = date.toLocaleString();
+            seen.append(time);
+          } else seen.textContent = "—";
+          row.append(seen);
+          fragment.append(row);
+        });
+        $("lb-rows").replaceChildren(fragment);
+      };
+
+      const load = async () => {
+        clearTimeout(debounce);
+        controller?.abort();
+        controller = new AbortController();
+        const activeController = controller;
+        const id = ++requestId;
+        $("lb-status").textContent = "Loading player stats…";
+        $("lb-status").classList.remove("lb-sr-only");
+        $("lb-status").hidden = false;
+        $("lb-retry").hidden = true;
+        $("lb-results").hidden = true;
+        $("lb-leaders").hidden = true;
+        $("lb-notice").hidden = true;
+        $("lb-results").setAttribute("aria-busy", "true");
+        $("lb-leaders").setAttribute("aria-busy", "true");
+        $("lb-prev").disabled = true;
+        $("lb-next").disabled = true;
+        $("lb-range").textContent = "—";
+        $("lb-page-number").textContent = "PAGE —";
+        const timeout = setTimeout(() => activeController.abort(), 45000);
+        try {
+          const search = new URLSearchParams({ q: state.q.trim(), sort: state.sort, order: state.order, page: String(state.page), pageSize: "25" });
+          if (state.season) search.set("season", state.season);
+          const response = await fetch("/api/leaderboard?" + search, { headers: { Accept: "application/json" }, signal: activeController.signal });
+          if (!response.ok) throw new Error(response.status === 404 ? "season" : "request");
+          const payload = await response.json();
+          if (!payload.ok || !payload.pagination || !Array.isArray(payload.players) || !Array.isArray(payload.seasons) || !Array.isArray(payload.leaders)) throw new Error("response");
+          if (id !== requestId) return;
+          state.season = String(payload.season.id);
+          state.page = payload.pagination.page;
+          totalPages = payload.pagination.totalPages;
+          const options = payload.seasons.map((season) => {
+            const option = element("option", "", season.name + (season.isActive && !season.finalizedAt ? " · Current" : " · Archive"));
+            option.value = String(season.id);
+            return option;
+          });
+          $("lb-season").replaceChildren(...options);
+          $("lb-season").value = state.season;
+          $("lb-season").disabled = false;
+          const active = payload.season.isActive && !payload.season.finalizedAt;
+          $("lb-season-state").textContent = active ? "CURRENT SEASON" : "ARCHIVED SEASON";
+          $("lb-total").textContent = integer.format(payload.totalPlayers);
+          const syncedAt = parseDate(payload.meta?.lastSyncedAt);
+          $("lb-sync").textContent = syncedAt ? "Last synced " + syncedAt.toLocaleString() : "No sync recorded yet";
+          $("lb-notice").hidden = !payload.meta?.stale;
+          $("lb-notice").textContent = "The latest sync failed. Showing the last saved stats; totals may be out of date.";
+          renderLeaders(payload.leaders);
+          renderRows(payload.players);
+          $("lb-leaders").hidden = false;
+          $("lb-results").hidden = payload.players.length === 0;
+          $("lb-match-count").textContent = integer.format(payload.filteredPlayers) + (state.q.trim() ? " MATCHING PLAYERS" : " PLAYERS");
+          const start = payload.filteredPlayers ? (state.page - 1) * payload.pagination.pageSize + 1 : 0;
+          const end = start ? start + payload.players.length - 1 : 0;
+          $("lb-range").textContent = `${integer.format(start)}–${integer.format(end)} of ${integer.format(payload.filteredPlayers)} players`;
+          $("lb-page-number").textContent = `PAGE ${state.page} / ${totalPages}`;
+          $("lb-prev").disabled = state.page <= 1;
+          $("lb-next").disabled = state.page >= totalPages;
+          $("lb-status").textContent = payload.players.length
+            ? `Showing players ${start} through ${end}.`
+            : (state.q.trim() ? "No players match that name. Try a different spelling or clear your search." : "No player stats have been recorded for this season yet.");
+          // Keep the live announcement available without adding a second visible row count.
+          $("lb-status").classList.toggle("lb-sr-only", payload.players.length > 0);
+          document.querySelectorAll("[data-sort-heading]").forEach((heading) => {
+            const selected = heading.dataset.sortHeading === state.sort;
+            heading.setAttribute("aria-sort", selected ? (state.order === "asc" ? "ascending" : "descending") : "none");
+            heading.querySelector("span").textContent = selected ? (state.order === "asc" ? "↑" : "↓") : "↕";
+          });
+          const shareUrl = new URL(location.href);
+          shareUrl.search = "";
+          shareUrl.searchParams.set("season", state.season);
+          if (state.q.trim()) shareUrl.searchParams.set("q", state.q.trim());
+          shareUrl.searchParams.set("sort", state.sort);
+          shareUrl.searchParams.set("order", state.order);
+          if (state.page > 1) shareUrl.searchParams.set("page", String(state.page));
+          history.replaceState(null, "", shareUrl);
+        } catch (error) {
+          if (id !== requestId) return;
+          $("lb-status").classList.remove("lb-sr-only");
+          $("lb-status").textContent = error.message === "season"
+            ? "That season is unavailable. Use Clear search to return to the current season."
+            : "Stats are temporarily unavailable. Please try again.";
+          $("lb-retry").hidden = false;
+        } finally {
+          clearTimeout(timeout);
+          if (id === requestId) {
+            $("lb-results").setAttribute("aria-busy", "false");
+            $("lb-leaders").setAttribute("aria-busy", "false");
+          }
+        }
+      };
+      const resetPageAndLoad = () => { state.page = 1; load(); };
+      $("lb-form").addEventListener("submit", (event) => { event.preventDefault(); resetPageAndLoad(); });
+      $("lb-search").addEventListener("input", () => {
+        state.q = $("lb-search").value;
+        controller?.abort();
+        requestId++;
+        clearTimeout(debounce);
+        $("lb-prev").disabled = true;
+        $("lb-next").disabled = true;
+        debounce = setTimeout(resetPageAndLoad, 300);
+      });
+      $("lb-sort").addEventListener("change", () => { state.sort = $("lb-sort").value; resetPageAndLoad(); });
+      $("lb-order").addEventListener("change", () => { state.order = $("lb-order").value; resetPageAndLoad(); });
+      document.querySelectorAll("[data-sort]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const sort = button.dataset.sort;
+          state.order = state.sort === sort && state.order === "desc" ? "asc" : "desc";
+          state.sort = sort;
+          $("lb-sort").value = state.sort;
+          $("lb-order").value = state.order;
+          resetPageAndLoad();
+        });
+      });
+      $("lb-season").addEventListener("change", () => { state.season = $("lb-season").value; resetPageAndLoad(); });
+      $("lb-clear").addEventListener("click", () => {
+        state.q = "";
+        $("lb-search").value = "";
+        if ($("lb-season").disabled) state.season = "";
+        resetPageAndLoad();
+      });
+      $("lb-prev").addEventListener("click", () => { if (state.page > 1) { state.page--; load(); } });
+      $("lb-next").addEventListener("click", () => { if (state.page < totalPages) { state.page++; load(); } });
+      $("lb-retry").addEventListener("click", load);
+      load();
+    })();
+  </script>
+
+  <style is:global>
+    .lb-page { --lb-border: #ffffff18; --lb-dim: #a3adb7; color: #eceff1; background: #0a0c0f; min-height: 100vh; }
+    .lb-page [hidden] { display: none !important; }
+    .lb-page .lb-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    .lb-page :is(a, button, input, select):focus-visible { outline: 2px solid #e24a43; outline-offset: 4px; }
+    .lb-header { min-height: 90px; display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid var(--lb-border); }
+    .lb-nav { display: flex; align-items: center; gap: 26px; font-size: 11px; font-weight: 800; letter-spacing: .08em; }
+    .lb-nav [aria-current] { color: #f17871; }
+    .lb-main { padding-top: 66px; }
+    .lb-hero { display: flex; justify-content: space-between; align-items: end; gap: 32px; padding-bottom: 36px; }
+    .lb-eyebrow { font-size: 10px; font-weight: 800; letter-spacing: .2em; color: #f17871; margin: 0 0 18px; }
+    .lb-hero h1 { font-size: clamp(34px, 5.1vw, 68px); line-height: 1; letter-spacing: -.055em; margin: 0; }
+    .lb-hero h1 em { color: #e24a43; font-style: normal; }
+    .lb-lede { color: #b5bec7; font-size: 15px; margin: 20px 0 0; }
+    .lb-season-box { flex: 0 0 220px; padding: 18px; border: 1px solid var(--lb-border); border-top: 2px solid #c7342f; background: #11151a; }
+    .lb-page label { display: block; font-size: 9px; font-weight: 800; letter-spacing: .13em; color: #b5bec7; margin-bottom: 9px; }
+    .lb-page :is(input, select) { width: 100%; min-height: 44px; padding: 10px 12px; color: #eceff1; background: #0e1217; border: 1px solid #ffffff26; border-radius: 0; font: inherit; font-size: 13px; color-scheme: dark; }
+    .lb-page input::placeholder { color: #929ca6; }
+    .lb-season-box > span { display: block; color: var(--lb-dim); font-size: 9px; letter-spacing: .1em; margin-top: 11px; }
+    .lb-meta { border-block: 1px solid var(--lb-border); display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 17px 0; }
+    .lb-meta p { margin: 0; color: var(--lb-dim); font-size: 11px; }
+    .lb-meta strong { color: #eceff1; font-size: 25px; letter-spacing: -.04em; margin-right: 10px; }
+    .lb-meta span { font-size: 9px; letter-spacing: .1em; }
+    .lb-notice { margin-top: 20px; border-left: 3px solid #e7ac58; background: #e7ac5810; color: #f0c990; padding: 14px 18px; font-size: 13px; }
+    .lb-leaders-section { margin: 34px 0 38px; }
+    .lb-section-heading, .lb-board-heading { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .lb-section-heading h2, .lb-board-heading h2 { font-size: 12px; letter-spacing: .13em; margin: 0; }
+    .lb-section-heading > span, .lb-board-heading > span { color: var(--lb-dim); font-size: 9px; letter-spacing: .08em; }
+    .lb-leaders { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .lb-leader { display: flex; gap: 17px; padding: 25px 22px; background: #11151a; border: 1px solid var(--lb-border); min-width: 0; }
+    .lb-leader-first { border-top: 2px solid #e24a43; background: linear-gradient(125deg, #c7342f13, transparent 80%), #11151a; }
+    .lb-leader-rank { font-size: 31px; font-weight: 900; color: #69747e; line-height: 1; letter-spacing: -.07em; }
+    .lb-leader-first .lb-leader-rank { color: #e24a43; }
+    .lb-leader-content { min-width: 0; flex: 1; }
+    .lb-leader-label { color: var(--lb-dim); font-size: 8px; letter-spacing: .15em; font-weight: 800; margin: 0 0 10px; }
+    .lb-leader h3 { font-size: 18px; margin: 0; line-height: 1.3; }
+    .lb-player-name { overflow-wrap: anywhere; }
+    .lb-leader-faction { color: var(--lb-dim); font-size: 11px; margin: 6px 0 19px; }
+    .lb-leader-stats { display: flex; align-items: baseline; flex-wrap: wrap; gap: 7px; font-variant-numeric: tabular-nums; }
+    .lb-leader-stats strong { font-size: 31px; line-height: 1; letter-spacing: -.05em; }
+    .lb-leader-stats span { font-size: 8px; color: var(--lb-dim); letter-spacing: .1em; }
+    .lb-leader-stats small { margin-left: auto; font-size: 11px; color: #c6cdd3; }
+    .lb-board { border: 1px solid var(--lb-border); background: #0d1115; }
+    .lb-board-heading { padding: 21px 22px 0; }
+    .lb-toolbar { display: grid; grid-template-columns: minmax(180px, 1fr) 140px 150px auto; gap: 14px; align-items: end; padding: 6px 22px 22px; }
+    .lb-button { display: inline-flex; justify-content: center; align-items: center; min-height: 44px; padding: 10px 15px; border: 1px solid #ffffff29; color: #eceff1; background: #151b21; font-family: inherit; font-size: 10px; font-weight: 800; letter-spacing: .07em; cursor: pointer; }
+    .lb-button:hover:not(:disabled) { border-color: #e24a43; background: #20262d; }
+    .lb-button:disabled { opacity: .38; cursor: default; }
+    .lb-status { padding: 24px 22px; margin: 0; color: #b8c1c9; font-size: 14px; }
+    .lb-retry { margin: 0 22px 22px; }
+    .lb-table-scroll { overflow-x: auto; }
+    .lb-table { width: 100%; min-width: 820px; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+    .lb-table th, .lb-table td { padding: 17px 15px; border-bottom: 1px solid #ffffff0b; text-align: left; }
+    .lb-table thead th { background: #171d24; color: #aab5bf; font-size: 9px; letter-spacing: .1em; white-space: nowrap; }
+    .lb-table thead button { cursor: pointer; background: none; border: 0; color: inherit; font: inherit; letter-spacing: inherit; padding: 6px 0; }
+    .lb-table th[aria-sort="descending"], .lb-table th[aria-sort="ascending"] { color: #f17871; }
+    .lb-table :is(th,td):first-child { padding-left: 22px; }
+    .lb-table .lb-number, .lb-table thead th[data-sort-heading] { text-align: right; }
+    .lb-table tbody th { min-width: 150px; max-width: 280px; font-weight: 700; font-size: 13px; }
+    .lb-table tbody tr:hover { background: #ffffff04; }
+    .lb-rank { color: var(--lb-dim); font-size: 10px; }
+    .lb-kills { color: #fff; font-weight: 800; }
+    .lb-faction { display: inline-block; padding: 4px 7px; border: 1px solid #ffffff1a; font-size: 10px; color: #bac3cb; }
+    .lb-seen { color: var(--lb-dim); font-size: 10px; white-space: nowrap; }
+    .lb-pagination { padding: 18px 22px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-top: 1px solid var(--lb-border); }
+    .lb-pagination p { color: var(--lb-dim); font-size: 11px; margin: 0; }
+    .lb-pagination nav { display: flex; align-items: center; gap: 18px; }
+    .lb-pagination nav span { font-size: 9px; color: #bcc5cd; letter-spacing: .07em; }
+    .lb-notes { max-width: 880px; margin: 24px 0 50px; color: var(--lb-dim); font-size: 11px; line-height: 1.8; }
+    .lb-notes strong { color: #cbd2d8; margin-right: 8px; letter-spacing: .07em; font-size: 9px; }
+    .lb-join { border-block: 1px solid var(--lb-border); display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 30px 0; }
+    .lb-join .lb-eyebrow { margin-bottom: 10px; }
+    .lb-join h2 { margin: 0; font-size: clamp(24px, 4vw, 38px); letter-spacing: -.04em; }
+    .lb-button-accent { background: #c7342f; border-color: #c7342f; min-height: 50px; }
+    .lb-footer { display: flex; flex-wrap: wrap; gap: 24px; padding-block: 27px 38px; color: var(--lb-dim); font-size: 9px; letter-spacing: .1em; }
+    .lb-footer span { margin-right: auto; }
+    .lb-muted { color: var(--lb-dim); font-size: 13px; }
+    @media (max-width: 900px) {
+      .lb-hero { align-items: start; flex-direction: column; }
+      .lb-season-box { flex: none; width: 100%; max-width: 300px; }
+      .lb-leader { padding: 20px 14px; gap: 11px; }
+      .lb-leader-rank { font-size: 23px; }
+      .lb-toolbar { grid-template-columns: 1fr 1fr; }
+      .lb-search-field { grid-column: 1 / -1; }
+      .lb-toolbar > button { grid-column: 1 / -1; justify-self: start; }
+    }
+    @media (max-width: 600px) {
+      .lb-header { flex-direction: column; align-items: flex-start; padding-block: 18px; gap: 18px; }
+      .lb-nav { width: 100%; justify-content: space-between; gap: 12px; font-size: 10px; }
+      .lb-main { padding-top: 36px; }
+      .lb-hero { gap: 24px; }
+      .lb-lede { font-size: 13px; }
+      .lb-meta { align-items: start; flex-direction: column; gap: 8px; }
+      .lb-leaders { grid-template-columns: 1fr; }
+      .lb-leader { padding: 19px; }
+      .lb-leader-content { display: grid; grid-template-columns: minmax(0,1fr) auto; column-gap: 14px; }
+      .lb-leader-label { grid-column: 1 / -1; }
+      .lb-leader h3 { font-size: 16px; }
+      .lb-leader-faction { grid-column: 1; margin-bottom: 0; }
+      .lb-leader-stats { grid-column: 2; grid-row: 2 / 4; max-width: 110px; }
+      .lb-leader-stats small { flex-basis: 100%; margin-left: 0; }
+      .lb-section-heading { align-items: start; flex-direction: column; gap: 6px; }
+      .lb-toolbar { padding-inline: 14px; }
+      .lb-board-heading { padding-inline: 14px; }
+      .lb-pagination { flex-direction: column; align-items: stretch; gap: 12px; padding: 16px 14px; }
+      .lb-pagination nav { justify-content: space-between; gap: 8px; }
+      .lb-pagination .lb-button { padding-inline: 10px; font-size: 9px; }
+      .lb-join { align-items: start; flex-direction: column; }
+    }
+  </style>
+</BaseLayout>

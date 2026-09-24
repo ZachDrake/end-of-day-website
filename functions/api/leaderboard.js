@@ -71,53 +71,53 @@ async function fetchAllPlayers(apiKey) {
     }
   }
 
-const uniquePlayers = new Map();
+  const uniquePlayers = new Map();
 
-for (const rawPlayer of players) {
-  const player = sanitizePlayer(rawPlayer);
+  for (const rawPlayer of players) {
+    const player = sanitizePlayer(rawPlayer);
 
-  if (!player.uuid) {
-    continue;
-  }
+    if (!player.uuid) {
+      continue;
+    }
 
-  const existing = uniquePlayers.get(player.uuid);
+    const existing = uniquePlayers.get(player.uuid);
 
-  if (!existing) {
-    uniquePlayers.set(player.uuid, player);
-    continue;
-  }
-
-  const existingTime = existing.lastSeen
-    ? Date.parse(existing.lastSeen)
-    : 0;
-
-  const playerTime = player.lastSeen
-    ? Date.parse(player.lastSeen)
-    : 0;
-
-  if (playerTime > existingTime) {
-    uniquePlayers.set(player.uuid, player);
-    continue;
-  }
-
-  if (playerTime === existingTime) {
-    const existingScore =
-      existing.kills +
-      existing.deaths +
-      existing.cash;
-
-    const playerScore =
-      player.kills +
-      player.deaths +
-      player.cash;
-
-    if (playerScore > existingScore) {
+    if (!existing) {
       uniquePlayers.set(player.uuid, player);
+      continue;
+    }
+
+    const existingTime = existing.lastSeen
+      ? Date.parse(existing.lastSeen)
+      : 0;
+
+    const playerTime = player.lastSeen
+      ? Date.parse(player.lastSeen)
+      : 0;
+
+    if (playerTime > existingTime) {
+      uniquePlayers.set(player.uuid, player);
+      continue;
+    }
+
+    if (playerTime === existingTime) {
+      const existingScore =
+        existing.kills +
+        existing.deaths +
+        existing.cash;
+
+      const playerScore =
+        player.kills +
+        player.deaths +
+        player.cash;
+
+      if (playerScore > existingScore) {
+        uniquePlayers.set(player.uuid, player);
+      }
     }
   }
-}
 
-return [...uniquePlayers.values()];
+  return [...uniquePlayers.values()];
 }
 
 async function syncSeason(context, seasonId) {
@@ -200,48 +200,71 @@ async function syncSeason(context, seasonId) {
   return players.length;
 }
 
+// Only these fixed expressions may be interpolated into ORDER BY.
+const SORT_COLUMNS = {
+  kills: "kills",
+  deaths: "deaths",
+  kd: "CASE WHEN deaths = 0 AND kills > 0 THEN 1 ELSE 0 END",
+  cash: "cash"
+};
+
+function positiveInteger(value, fallback, maximum) {
+  if (!value || !/^\d+$/.test(value)) return fallback;
+  const number = Number(value);
+  return Number.isSafeInteger(number) && number > 0
+    ? Math.min(number, maximum)
+    : fallback;
+}
+
+function publicSeason(season) {
+  return {
+    id: season.id,
+    name: season.name,
+    startsAt: season.starts_at,
+    endsAt: season.ends_at,
+    finalizedAt: season.finalized_at,
+    isActive: Boolean(season.is_active)
+  };
+}
+
 export async function onRequestGet(context) {
   try {
-    const season = await context.env.DB.prepare(`
-      SELECT
-        id,
-        name,
-        starts_at,
-        ends_at,
-        finalized_at,
-        is_active
+    const url = new URL(context.request.url);
+    const query = (url.searchParams.get("q") ?? "").trim().slice(0, 100);
+    const requestedSort = url.searchParams.get("sort") ?? "kills";
+    const sort = Object.hasOwn(SORT_COLUMNS, requestedSort) ? requestedSort : "kills";
+    const order = url.searchParams.get("order") === "asc" ? "asc" : "desc";
+    const direction = order === "asc" ? "ASC" : "DESC";
+    const pageSize = positiveInteger(url.searchParams.get("pageSize"), 100, 100);
+    const requestedPage = positiveInteger(url.searchParams.get("page"), 1, 1000000);
+    const seasonId = url.searchParams.get("season");
+
+    const seasonsResult = await context.env.DB.prepare(`
+      SELECT id, name, starts_at, ends_at, finalized_at, is_active
       FROM seasons
-      WHERE is_active = 1
-      LIMIT 1
-    `).first();
+      ORDER BY starts_at DESC, id DESC
+    `).all();
+    const seasons = seasonsResult.results ?? [];
+    const season = seasonId
+      ? seasons.find((item) => String(item.id) === seasonId)
+      : seasons.find((item) => item.is_active) ?? seasons[0];
 
     if (!season) {
       return Response.json(
-        { ok: false, error: "no_active_season" },
-        { status: 500 }
+        { ok: false, error: seasonId ? "season_not_found" : "no_seasons" },
+        { status: 404 }
       );
     }
 
     const sync = await context.env.DB.prepare(`
-      SELECT last_synced_at, player_count
-      FROM leaderboard_sync
-      WHERE season_id = ?1
-    `)
-      .bind(season.id)
-      .first();
-
-    const lastSyncMs =
-      sync?.last_synced_at
-        ? Date.parse(sync.last_synced_at)
-        : 0;
-
-    const shouldSync =
-      !lastSyncMs ||
-      Date.now() - lastSyncMs >= SYNC_INTERVAL_MS;
-
+      SELECT last_synced_at, player_count FROM leaderboard_sync WHERE season_id = ?1
+    `).bind(season.id).first();
+    const lastSyncMs = sync?.last_synced_at ? Date.parse(sync.last_synced_at) : 0;
+    // Archived seasons must never be overwritten with current Bisect data.
+    const shouldSync = Boolean(season.is_active) && !season.finalized_at &&
+      (!lastSyncMs || Date.now() - lastSyncMs >= SYNC_INTERVAL_MS);
     let refreshed = false;
     let syncError = null;
-
     if (shouldSync) {
       try {
         await syncSeason(context, season.id);
@@ -252,89 +275,66 @@ export async function onRequestGet(context) {
       }
     }
 
-    const countResult = await context.env.DB.prepare(`
-      SELECT COUNT(*) AS total
-      FROM season_player_stats
-      WHERE season_id = ?1
-    `)
-      .bind(season.id)
-      .first();
-
-    const totalPlayers = Number(countResult?.total ?? 0);
-
+    // INSTR treats %, _, and quotes as literal search text. Values remain bound.
+    const count = await context.env.DB.prepare(`
+      SELECT COUNT(*) AS total,
+        COALESCE(SUM(CASE WHEN instr(lower(username), lower(?2)) > 0 THEN 1 ELSE 0 END), 0) AS matched
+      FROM season_player_stats WHERE season_id = ?1
+    `).bind(season.id, query).first();
+    const totalPlayers = Number(count?.total ?? 0);
+    const filteredPlayers = Number(count?.matched ?? 0);
     if (totalPlayers === 0 && syncError) {
-      return Response.json(
-        {
-          ok: false,
-          error: "leaderboard_sync_failed"
-        },
-        { status: 502 }
-      );
+      return Response.json({ ok: false, error: "leaderboard_sync_failed" }, { status: 502 });
     }
-
+    const totalPages = Math.max(1, Math.ceil(filteredPlayers / pageSize));
+    const page = Math.min(requestedPage, totalPages);
+    const offset = (page - 1) * pageSize;
+    // kd stays numeric for compatibility; the UI displays infinity for positive kills / zero deaths.
+    const kdExpression = "CASE WHEN deaths = 0 THEN kills ELSE ROUND(CAST(kills AS REAL) / deaths, 2) END";
+    const exactKd = "CASE WHEN deaths = 0 THEN kills ELSE CAST(kills AS REAL) / deaths END";
+    const kdOrder = `CASE WHEN deaths = 0 AND kills > 0 THEN 1 ELSE 0 END DESC, ${exactKd} DESC`;
+    const primaryOrder = sort === "kd"
+      ? `${SORT_COLUMNS.kd} ${direction}, ${exactKd} ${direction}`
+      : `${SORT_COLUMNS[sort]} ${direction}`;
+    const rankingOrder = `${primaryOrder}, kills DESC, ${kdOrder}, cash DESC, username COLLATE NOCASE ASC, player_uuid ASC`;
+    // Rank the whole season before applying search, so search preserves each player's position.
     const leaderboardResult = await context.env.DB.prepare(`
-      SELECT
-        username,
-        status,
-        kills,
-        deaths,
-        CASE
-          WHEN deaths = 0 THEN kills
-          ELSE ROUND(CAST(kills AS REAL) / deaths, 2)
-        END AS kd,
-        cash,
-        faction,
-        last_seen AS lastSeen
-      FROM season_player_stats
-      WHERE season_id = ?1
-      ORDER BY kills DESC, kd DESC, cash DESC
-      LIMIT 100
-    `)
-      .bind(season.id)
-      .all();
-
+      WITH ranked AS (
+        SELECT ROW_NUMBER() OVER (ORDER BY ${rankingOrder}) AS rank,
+          username, status, kills, deaths, ${kdExpression} AS kd,
+          cash, faction, last_seen AS lastSeen
+        FROM season_player_stats WHERE season_id = ?1
+      )
+      SELECT * FROM ranked WHERE instr(lower(username), lower(?2)) > 0
+      ORDER BY rank LIMIT ?3 OFFSET ?4
+    `).bind(season.id, query, pageSize, offset).all();
+    // Leaders always represent most kills across the entire selected season.
+    const leaders = await context.env.DB.prepare(`
+      SELECT username, kills, deaths, ${kdExpression} AS kd, cash, faction
+      FROM season_player_stats WHERE season_id = ?1
+      ORDER BY kills DESC, ${kdOrder}, cash DESC, username COLLATE NOCASE ASC, player_uuid ASC
+      LIMIT 3
+    `).bind(season.id).all();
     const latestSync = await context.env.DB.prepare(`
-      SELECT last_synced_at, player_count
-      FROM leaderboard_sync
-      WHERE season_id = ?1
-    `)
-      .bind(season.id)
-      .first();
+      SELECT last_synced_at, player_count FROM leaderboard_sync WHERE season_id = ?1
+    `).bind(season.id).first();
 
-    return Response.json(
-      {
-        ok: true,
-        season: {
-          id: season.id,
-          name: season.name,
-          startsAt: season.starts_at,
-          endsAt: season.ends_at,
-          finalizedAt: season.finalized_at
-        },
-        totalPlayers,
-        players: leaderboardResult.results ?? [],
-        meta: {
-          lastSyncedAt: latestSync?.last_synced_at ?? null,
-          refreshed,
-          stale: Boolean(syncError)
-        }
-      },
-      {
-        headers: {
-          "Cache-Control":
-            "public, max-age=60, s-maxage=300, stale-while-revalidate=600"
-        }
-      }
-    );
+    return Response.json({
+      ok: true,
+      season: publicSeason(season),
+      seasons: seasons.map(publicSeason),
+      totalPlayers,
+      filteredPlayers,
+      players: leaderboardResult.results ?? [],
+      leaders: leaders.results ?? [],
+      pagination: { page, pageSize, totalPages },
+      filters: { q: query, sort, order },
+      meta: { lastSyncedAt: latestSync?.last_synced_at ?? null, refreshed, stale: Boolean(syncError) }
+    }, {
+      headers: { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=600" }
+    });
   } catch (error) {
     console.error("Leaderboard error:", error);
-
-    return Response.json(
-      {
-        ok: false,
-        error: "leaderboard_unavailable"
-      },
-      { status: 502 }
-    );
+    return Response.json({ ok: false, error: "leaderboard_unavailable" }, { status: 502 });
   }
 }
