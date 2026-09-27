@@ -13,7 +13,7 @@ import { site } from "../config/site";
       <span class="brand-copy"><strong>END OF DAY</strong><small>EOD • WARDOGS COMMUNITY</small></span>
     </a>
     <nav class="desktop-nav" aria-label="Page navigation">
-      <a href="/wardogs-community">COMMUNITY</a><a href="/server">SERVER</a><a href="/about">ABOUT</a><a href="/rules">RULES</a><a class="nav-button" href="/discord">DISCORD</a>
+      <a href="/wardogs-community">COMMUNITY</a><a href="/server">SERVER</a><a href="/leaderboard">LEADERBOARD</a><a href="/about">ABOUT</a><a href="/rules">RULES</a><a class="nav-button" href="/discord">DISCORD</a>
     </nav>
   </header>
 
@@ -67,6 +67,14 @@ import { site } from "../config/site";
     </section>
 
     <div class="subpage-cta"><div><small>FIND YOUR SQUAD</small><p>Meet the regulars and help seed EOD when the server is quiet.</p></div><a class="button button-accent" href={site.discordUrl} target="_blank" rel="noreferrer">JOIN END OF DAY</a></div>
+
+    <div class="subpage-cta">
+      <div>
+        <small>KEEP EOD RUNNING</small>
+        <p>EOD is community-funded. If you enjoy the server, you can help cover hosting costs. Donations are appreciated, never required.</p>
+      </div>
+      <a class="button button-ghost" href={site.donateUrl} target="_blank" rel="noreferrer">SUPPORT THE SERVER ↗</a>
+    </div>
 
     <p class="server-data-credit">Server telemetry provided by <a href="https://wardogservers.com" target="_blank" rel="noreferrer">Wardog Servers</a>.</p>
   </main>

@@ -30,107 +30,77 @@ function publicSeason(season) {
   };
 }
 
-function playerCte(killFilterSql = "") {
-  return `
-    WITH appearances AS (
-      SELECT
-        killer_steam_id AS steam_id,
-        killer_name AS username,
-        received_at,
-        event_id
-      FROM kill_events
-      WHERE season_id = ?1
-        AND killer_steam_id IS NOT NULL
-        AND trim(killer_steam_id) <> ''
+function playerCte(filterCauseIds = []) {
+  const filterActive = filterCauseIds.length > 0;
 
-      UNION ALL
-
-      SELECT
-        victim_steam_id AS steam_id,
-        victim_name AS username,
-        received_at,
-        event_id
-      FROM kill_events
-      WHERE season_id = ?1
-        AND victim_steam_id IS NOT NULL
-        AND trim(victim_steam_id) <> ''
-    ),
-    latest_names AS (
-      SELECT steam_id, username
-      FROM (
+  if (!filterActive) {
+    return `
+      WITH player_stats AS (
         SELECT
           steam_id,
+          username,
+          kills,
+          deaths,
+          headshots,
+          longest_kill_cm AS longest_distance_cm,
+          ROUND(CAST(longest_kill_cm AS REAL) / 100.0, 1) AS longestKillMeters,
           CASE
-            WHEN username IS NULL OR trim(username) = '' THEN 'Unknown'
-            ELSE username
-          END AS username,
-          ROW_NUMBER() OVER (
-            PARTITION BY steam_id
-            ORDER BY received_at DESC, event_id DESC
-          ) AS rn
-        FROM appearances
+            WHEN deaths = 0 THEN kills
+            ELSE ROUND(CAST(kills AS REAL) / deaths, 2)
+          END AS kd,
+          CASE
+            WHEN deaths = 0 THEN kills
+            ELSE CAST(kills AS REAL) / deaths
+          END AS kd_exact
+        FROM combat_player_stats
+        WHERE season_id = ?1
       )
-      WHERE rn = 1
-    ),
-    kills AS (
+    `;
+  }
+
+  const causePlaceholders = filterCauseIds
+    .map((_, index) => `?${index + 2}`)
+    .join(", ");
+
+  return `
+    WITH filtered_kills AS (
       SELECT
-        killer_steam_id AS steam_id,
-        COUNT(*) AS kills,
-        SUM(COALESCE(is_headshot, 0)) AS headshots,
-        MAX(COALESCE(distance_cm, 0)) AS longest_distance_cm
-      FROM kill_events
+        steam_id,
+        SUM(kills) AS kills,
+        SUM(headshots) AS headshots,
+        MAX(longest_kill_cm) AS longest_distance_cm
+      FROM combat_weapon_stats
       WHERE season_id = ?1
-        AND killer_steam_id IS NOT NULL
-        AND victim_steam_id IS NOT NULL
-        AND killer_steam_id <> victim_steam_id
-        AND COALESCE(is_suicide, 0) = 0
-        ${killFilterSql}
-      GROUP BY killer_steam_id
-    ),
-    deaths AS (
-      SELECT
-        victim_steam_id AS steam_id,
-        COUNT(*) AS deaths
-      FROM kill_events
-      WHERE season_id = ?1
-        AND victim_steam_id IS NOT NULL
-        AND trim(victim_steam_id) <> ''
-      GROUP BY victim_steam_id
-    ),
-    ids AS (
-      SELECT DISTINCT steam_id FROM appearances
-    ),
-    base_stats AS (
-      SELECT
-        ids.steam_id,
-        COALESCE(latest_names.username, 'Unknown') AS username,
-        COALESCE(kills.kills, 0) AS kills,
-        COALESCE(kills.headshots, 0) AS headshots,
-        COALESCE(kills.longest_distance_cm, 0) AS longest_distance_cm,
-        COALESCE(deaths.deaths, 0) AS deaths
-      FROM ids
-      LEFT JOIN latest_names USING (steam_id)
-      LEFT JOIN kills USING (steam_id)
-      LEFT JOIN deaths USING (steam_id)
+        AND cause IN (${causePlaceholders})
+      GROUP BY steam_id
     ),
     player_stats AS (
       SELECT
-        steam_id,
-        username,
-        kills,
-        deaths,
-        headshots,
-        longest_distance_cm,
-        ROUND(CAST(longest_distance_cm AS REAL) / 100.0, 1) AS longestKillMeters,
+        players.steam_id,
+        players.username,
+        COALESCE(filtered_kills.kills, 0) AS kills,
+        players.deaths,
+        COALESCE(filtered_kills.headshots, 0) AS headshots,
+        COALESCE(filtered_kills.longest_distance_cm, 0) AS longest_distance_cm,
+        ROUND(
+          CAST(COALESCE(filtered_kills.longest_distance_cm, 0) AS REAL) / 100.0,
+          1
+        ) AS longestKillMeters,
         CASE
-          WHEN deaths = 0 THEN kills
-          ELSE ROUND(CAST(kills AS REAL) / deaths, 2)
+          WHEN players.deaths = 0 THEN COALESCE(filtered_kills.kills, 0)
+          ELSE ROUND(
+            CAST(COALESCE(filtered_kills.kills, 0) AS REAL) / players.deaths,
+            2
+          )
         END AS kd,
         CASE
-          WHEN deaths = 0 THEN kills
-          ELSE CAST(kills AS REAL) / deaths
+          WHEN players.deaths = 0 THEN COALESCE(filtered_kills.kills, 0)
+          ELSE CAST(COALESCE(filtered_kills.kills, 0) AS REAL) / players.deaths
         END AS kd_exact
-      FROM base_stats
+      FROM combat_player_stats AS players
+      LEFT JOIN filtered_kills
+        ON filtered_kills.steam_id = players.steam_id
+      WHERE players.season_id = ?1
     )
   `;
 }
@@ -163,8 +133,12 @@ export async function onRequestGet(context) {
       1000000
     );
     const seasonId = url.searchParams.get("season");
-    const requestedCategory = (url.searchParams.get("category") ?? "").trim().slice(0, 80);
-    const requestedWeapon = (url.searchParams.get("weapon") ?? "").trim().slice(0, 200);
+    const requestedCategory = (url.searchParams.get("category") ?? "")
+      .trim()
+      .slice(0, 80);
+    const requestedWeapon = (url.searchParams.get("weapon") ?? "")
+      .trim()
+      .slice(0, 200);
 
     const seasonsResult = await context.env.DB.prepare(`
       SELECT
@@ -194,27 +168,24 @@ export async function onRequestGet(context) {
     const causesResult = await context.env.DB.prepare(`
       SELECT
         cause,
-        COUNT(*) AS kills
-      FROM kill_events
+        kills
+      FROM combat_cause_stats
       WHERE season_id = ?1
-        AND cause IS NOT NULL
-        AND trim(cause) <> ''
-        AND killer_steam_id IS NOT NULL
-        AND victim_steam_id IS NOT NULL
-        AND killer_steam_id <> victim_steam_id
-        AND COALESCE(is_suicide, 0) = 0
-      GROUP BY cause
+        AND cause <> '<UNKNOWN>'
+        AND kills > 0
       ORDER BY kills DESC, cause ASC
     `).bind(season.id).all();
 
     const weaponOptions = normalizeWeaponOptions(causesResult.results);
-    const byCause = new Map(weaponOptions.map((weapon) => [weapon.rawCause, weapon]));
+    const byCause = new Map(
+      weaponOptions.map((weaponOption) => [weaponOption.rawCause, weaponOption])
+    );
     const categoryTotals = new Map();
 
-    for (const weapon of weaponOptions) {
+    for (const weaponOption of weaponOptions) {
       categoryTotals.set(
-        weapon.category,
-        (categoryTotals.get(weapon.category) ?? 0) + weapon.kills
+        weaponOption.category,
+        (categoryTotals.get(weaponOption.category) ?? 0) + weaponOption.kills
       );
     }
 
@@ -238,13 +209,7 @@ export async function onRequestGet(context) {
         : [];
 
     const filterActive = filterCauseIds.length > 0;
-    const causePlaceholders = filterCauseIds
-      .map((_, index) => `?${index + 2}`)
-      .join(", ");
-    const killFilterSql = filterActive
-      ? `AND cause IN (${causePlaceholders})`
-      : "";
-    const cte = playerCte(killFilterSql);
+    const cte = playerCte(filterCauseIds);
     const searchParameter = filterCauseIds.length + 2;
     const pageSizeParameter = searchParameter + 1;
     const offsetParameter = searchParameter + 2;
@@ -340,10 +305,10 @@ export async function onRequestGet(context) {
 
     const eventMeta = await context.env.DB.prepare(`
       SELECT
-        COUNT(*) AS events_recorded,
-        MIN(received_at) AS first_event_at,
-        MAX(received_at) AS last_event_at
-      FROM kill_events
+        events_recorded,
+        first_event_at,
+        last_event_at
+      FROM combat_season_stats
       WHERE season_id = ?1
     `).bind(season.id).first();
 

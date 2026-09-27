@@ -1,5 +1,5 @@
 const CAUSE_CATALOG = {
-  "Id.Item.WEPN_029": { name: "Mosin (AP)", category: "Marksman" },
+  "Id.Item.WEPN_029": { name: "Galil", category: "Assault rifle" },
   "Id.Item.AK74M": { name: "AK74", category: "Assault rifle" },
   "Id.Item.SVDM": { name: "SVD", category: "Marksman" },
   "Id.Item.SV98": { name: "SV98", category: "Sniper" },

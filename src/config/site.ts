@@ -9,6 +9,7 @@ export const site = {
   // Update when you have the real links.
   discordUrl: "https://discord.gg/NVgJ5mpscy",
   steamUrl: "https://store.steampowered.com/app/1867240/WARDOGS/",
+  donateUrl: "https://bisecthosting.com/donate/6c162067",
 
   // Community server is live.
   serverState: "LIVE",
