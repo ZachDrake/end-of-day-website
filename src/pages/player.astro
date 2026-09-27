@@ -1,0 +1,469 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../config/site";
+---
+
+<BaseLayout title="Player Stats | End of Day" description="Detailed End of Day WARDOGS player combat statistics by season.">
+  <div class="ps-page">
+    <header class="ps-header shell">
+      <a class="brand" href="/" aria-label={`${site.communityName} home`}>
+        <span class="brand-logo-frame" aria-hidden="true"><img src="/images/end-of-day-logo.png" alt="" /></span>
+        <span class="brand-copy"><strong>END OF DAY</strong><small>EOD • WARDOGS COMMUNITY</small></span>
+      </a>
+      <nav class="ps-nav" aria-label="Main navigation">
+        <a href="/server">SERVER</a>
+        <a href="/leaderboard">LEADERBOARD</a>
+        <a class="nav-button" href={site.discordUrl} target="_blank" rel="noreferrer">DISCORD ↗</a>
+      </nav>
+    </header>
+
+    <main class="shell ps-main" id="main-content">
+      <a class="ps-back" id="ps-back" href="/leaderboard">← BACK TO LEADERBOARD</a>
+
+      <section class="ps-hero">
+        <div>
+          <p class="ps-eyebrow">END OF DAY / PLAYER PROFILE</p>
+          <h1 id="ps-name">LOADING PLAYER…</h1>
+          <p class="ps-steam" id="ps-steam">Steam ID —</p>
+        </div>
+        <div class="ps-season-box">
+          <label for="ps-season">SEASON</label>
+          <select id="ps-season" disabled><option>Loading seasons…</option></select>
+          <span id="ps-season-state">STATS ON EOD</span>
+        </div>
+      </section>
+
+      <p id="ps-status" class="ps-status" role="status" aria-live="polite">Loading combat profile…</p>
+      <button id="ps-retry" class="ps-button" type="button" hidden>TRY AGAIN</button>
+
+      <div id="ps-content" hidden>
+        <section class="ps-stat-grid" aria-label="Core combat statistics">
+          <article class="ps-stat ps-stat-primary"><span>KILLS</span><strong id="ps-kills">0</strong></article>
+          <article class="ps-stat"><span>DEATHS</span><strong id="ps-deaths">0</strong></article>
+          <article class="ps-stat"><span>K/D</span><strong id="ps-kd">0.00</strong></article>
+          <article class="ps-stat"><span>HEADSHOTS</span><strong id="ps-headshots">0</strong><small id="ps-headshot-rate">0%</small></article>
+          <article class="ps-stat"><span>LONGEST KILL</span><strong id="ps-longest">0.0 m</strong></article>
+          <article class="ps-stat"><span>AVG. KILL DISTANCE</span><strong id="ps-average-distance">0.0 m</strong></article>
+        </section>
+
+        <section class="ps-rivalries">
+          <article class="ps-rivalry ps-rivalry-danger">
+            <p class="ps-card-label">NEMESIS</p>
+            <h2 id="ps-nemesis-name">Nobody yet</h2>
+            <p id="ps-nemesis-copy">No one has claimed the title.</p>
+          </article>
+          <article class="ps-rivalry ps-rivalry-good">
+            <p class="ps-card-label">FAVORITE VICTIM</p>
+            <h2 id="ps-victim-name">Nobody yet</h2>
+            <p id="ps-victim-copy">No recurring victim yet.</p>
+          </article>
+        </section>
+
+        <section class="ps-section">
+          <div class="ps-section-heading"><h2>THE WEIRD STUFF</h2><span>SEASON TOTALS</span></div>
+          <div class="ps-mini-grid">
+            <article><span>SUICIDES</span><strong id="ps-suicides">0</strong></article>
+            <article><span>BELLYFLOPS</span><strong id="ps-bellyflops">0</strong><small>Fall-damage suicides</small></article>
+            <article><span>MELEE KILLS</span><strong id="ps-melee">0</strong></article>
+            <article><span>ROADKILLS</span><strong id="ps-roadkills">0</strong></article>
+            <article><span>VEHICLE EXPLOSION KILLS</span><strong id="ps-vehicle">0</strong></article>
+            <article><span>PENETRATION KILLS</span><strong id="ps-penetration">0</strong></article>
+            <article><span>RICOCHET KILLS</span><strong id="ps-ricochet">0</strong></article>
+            <article><span>UNIQUE VICTIMS</span><strong id="ps-unique-victims">0</strong></article>
+            <article><span>UNIQUE KILLERS</span><strong id="ps-unique-killers">0</strong></article>
+            <article><span>MATCHES WITH COMBAT</span><strong id="ps-matches">0</strong><small>Not total matches played</small></article>
+            <article><span>NEMESIS OF</span><strong id="ps-nemesis-count">0</strong><small>Players who fear you most</small></article>
+          </div>
+        </section>
+
+        <section class="ps-section ps-panel">
+          <div class="ps-section-heading"><h2>YOU ARE THE NEMESIS OF</h2><span>OUTRIGHT TOP KILLER / 2+ KILLS</span></div>
+          <div class="ps-table-wrap">
+            <table class="ps-table"><thead><tr><th>PLAYER</th><th>TIMES KILLED</th></tr></thead><tbody id="ps-nemesis-of"></tbody></table>
+          </div>
+        </section>
+
+        <section class="ps-split">
+          <div class="ps-section ps-panel">
+            <div class="ps-section-heading"><h2>TOP KILL CAUSES</h2><span>TOP 10</span></div>
+            <div class="ps-table-wrap">
+              <table class="ps-table"><thead><tr><th>CAUSE</th><th>TYPE</th><th>KILLS</th><th>HEADSHOTS</th><th>LONGEST</th></tr></thead><tbody id="ps-weapons"></tbody></table>
+            </div>
+          </div>
+          <div class="ps-section ps-panel">
+            <div class="ps-section-heading"><h2>MAP PERFORMANCE</h2><span>KILLS / DEATHS</span></div>
+            <div class="ps-table-wrap">
+              <table class="ps-table"><thead><tr><th>MAP</th><th>K</th><th>D</th><th>K/D</th></tr></thead><tbody id="ps-maps"></tbody></table>
+            </div>
+          </div>
+        </section>
+
+        <section class="ps-section ps-panel">
+          <div class="ps-section-heading"><h2>RECENT COMBAT</h2><span>LAST 25 EVENTS</span></div>
+          <div id="ps-recent" class="ps-recent"></div>
+        </section>
+
+        <aside class="ps-notes">
+          <p><strong>WHAT COUNTS.</strong> Kills are non-suicide kills against another Steam ID. Suicides and self-kills count as deaths but never award a kill.</p>
+          <p>"Matches with combat" only counts matches where this player appeared in a recorded kill event. It is not the same as total matches played.</p>
+          <p>A nemesis requires at least 2 kills against the same player and must be the single outright top killer against that player. Ties do not produce a nemesis.</p>
+          <p>Team kills and pilot-delivery ratings are not shown yet because the current kill feed does not provide enough verified telemetry to calculate them reliably.</p>
+        </aside>
+      </div>
+    </main>
+
+    <footer class="ps-footer shell"><span>END OF DAY / EST. 2026</span><a href="/">HOME</a><a href="/leaderboard">LEADERBOARD</a><a href="/server">SERVER INFO</a></footer>
+  </div>
+
+  <script is:inline>
+    (() => {
+      const $ = (id) => document.getElementById(id);
+      const params = new URLSearchParams(location.search);
+      const steamId = (params.get("steamId") || "").trim();
+      let season = params.get("season") || "";
+      let controller;
+      const integer = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 });
+      const decimal = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const oneDecimal = new Intl.NumberFormat(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+      const number = (value) => Number.isFinite(Number(value)) ? Number(value) : 0;
+      const element = (tag, className, text) => {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined) node.textContent = String(text);
+        return node;
+      };
+      const parseDate = (value) => {
+        if (!value) return null;
+        let normalized = String(value).replace(" ", "T");
+        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$/.test(normalized)) normalized += "Z";
+        const date = new Date(normalized);
+        return Number.isNaN(date.getTime()) ? null : date;
+      };
+      const kdText = (kills, deaths) => number(deaths) === 0
+        ? (number(kills) > 0 ? "∞" : "0.00")
+        : decimal.format(number(kills) / number(deaths));
+      const profileUrl = (id) => {
+        const url = new URL("/player", location.origin);
+        url.searchParams.set("steamId", id);
+        if (season) url.searchParams.set("season", season);
+        return url.pathname + url.search;
+      };
+      const prettyCause = (cause) => {
+        const raw = String(cause || "Unknown");
+        if (raw === "Unknown") return raw;
+        const parts = raw.split(".").filter(Boolean);
+        const ignored = new Set(["Id", "ID", "Item", "Vehicle", "Variant", "Default"]);
+        const useful = parts.filter((part) => !ignored.has(part));
+        return useful.slice(-3).join(" · ") || raw;
+      };
+
+      const rivalLink = (target) => {
+        const link = element("a", "ps-rival-link", target?.username || "Unknown");
+        link.href = profileUrl(target.steamId);
+        return link;
+      };
+
+      const renderNemesis = (nemesis, deaths) => {
+        const name = $("ps-nemesis-name");
+        const copy = $("ps-nemesis-copy");
+        if (!nemesis || nemesis.status !== "sole" || !nemesis.contender?.steamId) {
+          name.textContent = "Nobody yet";
+          copy.textContent = number(deaths) > 0
+            ? "No single player has claimed the title yet."
+            : "No one has killed you yet.";
+          return;
+        }
+        const target = nemesis.contender;
+        name.replaceChildren(rivalLink(target));
+        const count = number(target.killsAgainstPlayer);
+        copy.textContent = `Killed you ${integer.format(count)} ${count === 1 ? "time" : "times"}.`;
+      };
+
+      const renderFavoriteVictim = (target) => {
+        if (!target?.steamId) {
+          $("ps-victim-name").textContent = "Nobody yet";
+          $("ps-victim-copy").textContent = "No recurring victim yet.";
+          return;
+        }
+        $("ps-victim-name").replaceChildren(rivalLink(target));
+        const count = number(target.timesKilled);
+        $("ps-victim-copy").textContent = `You killed this player ${integer.format(count)} ${count === 1 ? "time" : "times"}.`;
+      };
+
+      const renderNemesisOf = (rows) => {
+        const body = $("ps-nemesis-of");
+        const fragment = document.createDocumentFragment();
+        if (!rows.length) {
+          const row = element("tr", "");
+          const cell = element("td", "ps-empty", "You are not anyone's established nemesis yet.");
+          cell.colSpan = 2;
+          row.append(cell);
+          fragment.append(row);
+        }
+        rows.forEach((item) => {
+          const row = element("tr", "");
+          const playerCell = element("td", "");
+          playerCell.append(rivalLink(item));
+          row.append(playerCell, element("td", "ps-number", integer.format(number(item.timesKilled))));
+          fragment.append(row);
+        });
+        body.replaceChildren(fragment);
+      };
+
+      const renderWeapons = (rows) => {
+        const body = $("ps-weapons");
+        const fragment = document.createDocumentFragment();
+        if (!rows.length) {
+          const row = element("tr", "");
+          const cell = element("td", "ps-empty", "No kills recorded yet.");
+          cell.colSpan = 5;
+          row.append(cell);
+          fragment.append(row);
+        }
+        rows.forEach((item) => {
+          const row = element("tr", "");
+          const cause = element("td", "ps-cause", item.causeName || prettyCause(item.cause));
+          cause.title = item.cause || "Unknown";
+          row.append(
+            cause,
+            element("td", "", item.causeCategory || "Other"),
+            element("td", "ps-number", integer.format(number(item.kills))),
+            element("td", "ps-number", integer.format(number(item.headshots))),
+            element("td", "ps-number", oneDecimal.format(number(item.longestKillMeters)) + " m")
+          );
+          fragment.append(row);
+        });
+        body.replaceChildren(fragment);
+      };
+
+      const renderMaps = (rows) => {
+        const body = $("ps-maps");
+        const fragment = document.createDocumentFragment();
+        if (!rows.length) {
+          const row = element("tr", "");
+          const cell = element("td", "ps-empty", "No map combat recorded yet.");
+          cell.colSpan = 4;
+          row.append(cell);
+          fragment.append(row);
+        }
+        rows.forEach((item) => {
+          const row = element("tr", "");
+          row.append(
+            element("td", "", item.mapName || "Unknown"),
+            element("td", "ps-number", integer.format(number(item.kills))),
+            element("td", "ps-number", integer.format(number(item.deaths))),
+            element("td", "ps-number", kdText(item.kills, item.deaths))
+          );
+          fragment.append(row);
+        });
+        body.replaceChildren(fragment);
+      };
+
+      const renderRecent = (rows) => {
+        const container = $("ps-recent");
+        const fragment = document.createDocumentFragment();
+        if (!rows.length) fragment.append(element("p", "ps-empty", "No combat events recorded yet."));
+        rows.forEach((event) => {
+          const selfEvent = event.killerSteamId === steamId && event.victimSteamId === steamId;
+          const isKill = event.killerSteamId === steamId && event.victimSteamId !== steamId && !number(event.isSuicide);
+          const isDeath = event.victimSteamId === steamId && !selfEvent;
+          const item = element("article", "ps-event " + (isKill ? "ps-event-kill" : "ps-event-death"));
+          const main = element("div", "ps-event-main");
+          let title;
+          if (selfEvent || number(event.isSuicide)) title = "SELF-DESTRUCTED";
+          else if (isKill) title = "KILLED " + (event.victimName || "Unknown");
+          else if (isDeath) title = "KILLED BY " + (event.killerName || "Unknown");
+          else title = "COMBAT EVENT";
+          main.append(element("strong", "", title));
+          const details = [];
+          if (event.cause) details.push(prettyCause(event.cause));
+          if (number(event.distanceCm) > 0) details.push(oneDecimal.format(number(event.distanceCm) / 100) + " m");
+          if (number(event.isHeadshot)) details.push("HEADSHOT");
+          if (number(event.isRoadkill)) details.push("ROADKILL");
+          if (number(event.isMelee)) details.push("MELEE");
+          if (number(event.isFalling)) details.push("FALLING");
+          if (event.mapName) details.push(event.mapName);
+          main.append(element("span", "", details.join(" · ") || "No additional details"));
+          const date = parseDate(event.receivedAt);
+          item.append(main, element("time", "ps-event-time", date ? date.toLocaleString() : ""));
+          fragment.append(item);
+        });
+        container.replaceChildren(fragment);
+      };
+
+      const load = async () => {
+        controller?.abort();
+        controller = new AbortController();
+        $("ps-status").hidden = false;
+        $("ps-status").textContent = "Loading combat profile…";
+        $("ps-retry").hidden = true;
+        $("ps-content").hidden = true;
+
+        if (!/^\d{15,20}$/.test(steamId)) {
+          $("ps-status").textContent = "This player link is missing a valid Steam ID.";
+          return;
+        }
+
+        try {
+          const search = new URLSearchParams({ steamId });
+          if (season) search.set("season", season);
+          const response = await fetch("/api/player?" + search, { headers: { Accept: "application/json" }, signal: controller.signal });
+          if (!response.ok) throw new Error(response.status === 404 ? "season" : "request");
+          const payload = await response.json();
+          if (!payload.ok || !payload.season || !Array.isArray(payload.seasons)) throw new Error("response");
+
+          season = String(payload.season.id);
+          const options = payload.seasons.map((item) => {
+            const option = element("option", "", item.name + (item.isActive && !item.finalizedAt ? " · Current" : " · Archive"));
+            option.value = String(item.id);
+            return option;
+          });
+          $("ps-season").replaceChildren(...options);
+          $("ps-season").value = season;
+          $("ps-season").disabled = false;
+          $("ps-season-state").textContent = payload.season.isActive && !payload.season.finalizedAt ? "CURRENT SEASON" : "ARCHIVED SEASON";
+
+          const back = new URL("/leaderboard", location.origin);
+          back.searchParams.set("season", season);
+          $("ps-back").href = back.pathname + back.search;
+
+          const shareUrl = new URL(location.href);
+          shareUrl.search = "";
+          shareUrl.searchParams.set("steamId", steamId);
+          shareUrl.searchParams.set("season", season);
+          history.replaceState(null, "", shareUrl);
+
+          if (!payload.found) {
+            $("ps-name").textContent = "NO COMBAT DATA";
+            $("ps-steam").textContent = "Steam ID " + steamId;
+            $("ps-status").textContent = "This player has no recorded combat events in the selected season.";
+            return;
+          }
+
+          const s = payload.summary || {};
+          $("ps-name").textContent = payload.player?.username || "Unknown";
+          $("ps-steam").textContent = "Steam ID " + steamId;
+          $("ps-kills").textContent = integer.format(number(s.kills));
+          $("ps-deaths").textContent = integer.format(number(s.deaths));
+          $("ps-kd").textContent = kdText(s.kills, s.deaths);
+          $("ps-headshots").textContent = integer.format(number(s.headshots));
+          $("ps-headshot-rate").textContent = oneDecimal.format(number(s.headshotRate)) + "% of kills";
+          $("ps-longest").textContent = oneDecimal.format(number(s.longestKillMeters)) + " m";
+          $("ps-average-distance").textContent = oneDecimal.format(number(s.averageKillDistanceMeters)) + " m";
+          $("ps-suicides").textContent = integer.format(number(s.suicides));
+          $("ps-bellyflops").textContent = integer.format(number(s.bellyflops));
+          $("ps-melee").textContent = integer.format(number(s.meleeKills));
+          $("ps-roadkills").textContent = integer.format(number(s.roadkills));
+          $("ps-vehicle").textContent = integer.format(number(s.vehicleExplosionKills));
+          $("ps-penetration").textContent = integer.format(number(s.penetrationKills));
+          $("ps-ricochet").textContent = integer.format(number(s.ricochetKills));
+          $("ps-unique-victims").textContent = integer.format(number(s.uniqueVictims));
+          $("ps-unique-killers").textContent = integer.format(number(s.uniqueKillers));
+          $("ps-matches").textContent = integer.format(number(s.matchesWithCombat));
+          $("ps-nemesis-count").textContent = integer.format(number(s.nemesisCount));
+
+          renderNemesis(payload.nemesis, s.deaths);
+          renderFavoriteVictim(payload.favoriteVictim);
+          renderNemesisOf(Array.isArray(payload.nemesisOf) ? payload.nemesisOf : []);
+          renderWeapons(Array.isArray(payload.topWeapons) ? payload.topWeapons : []);
+          renderMaps(Array.isArray(payload.mapPerformance) ? payload.mapPerformance : []);
+          renderRecent(Array.isArray(payload.recentCombat) ? payload.recentCombat : []);
+
+          $("ps-status").hidden = true;
+          $("ps-content").hidden = false;
+        } catch (error) {
+          if (error.name === "AbortError") return;
+          $("ps-status").textContent = error.message === "season"
+            ? "That season is unavailable."
+            : "Player stats are temporarily unavailable. Please try again.";
+          $("ps-retry").hidden = false;
+        }
+      };
+
+      $("ps-season").addEventListener("change", () => { season = $("ps-season").value; load(); });
+      $("ps-retry").addEventListener("click", load);
+      load();
+    })();
+  </script>
+
+  <style is:global>
+    .ps-page { --ps-border: #ffffff18; --ps-dim: #a3adb7; color: #eceff1; background: #0a0c0f; min-height: 100vh; }
+    .ps-page [hidden] { display: none !important; }
+    .ps-page :is(a, button, select):focus-visible { outline: 2px solid #e24a43; outline-offset: 4px; }
+    .ps-header { min-height: 90px; display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid var(--ps-border); }
+    .ps-nav { display: flex; align-items: center; gap: 26px; font-size: 11px; font-weight: 800; letter-spacing: .08em; }
+    .ps-main { padding-top: 34px; padding-bottom: 40px; }
+    .ps-back { display: inline-block; color: var(--ps-dim); text-decoration: none; font-size: 9px; font-weight: 800; letter-spacing: .1em; margin-bottom: 34px; }
+    .ps-back:hover { color: #f17871; }
+    .ps-hero { display: flex; align-items: end; justify-content: space-between; gap: 30px; padding-bottom: 32px; border-bottom: 1px solid var(--ps-border); }
+    .ps-eyebrow, .ps-card-label { font-size: 9px; font-weight: 800; letter-spacing: .18em; color: #f17871; margin: 0 0 13px; }
+    .ps-hero h1 { margin: 0; font-size: clamp(36px, 5.2vw, 72px); letter-spacing: -.055em; line-height: .95; overflow-wrap: anywhere; }
+    .ps-steam { margin: 16px 0 0; color: var(--ps-dim); font-size: 11px; }
+    .ps-season-box { flex: 0 0 220px; padding: 18px; background: #11151a; border: 1px solid var(--ps-border); border-top: 2px solid #c7342f; }
+    .ps-page label { display: block; font-size: 9px; font-weight: 800; letter-spacing: .13em; color: #b5bec7; margin-bottom: 9px; }
+    .ps-page select { width: 100%; min-height: 44px; padding: 10px 12px; color: #eceff1; background: #0e1217; border: 1px solid #ffffff26; border-radius: 0; font: inherit; font-size: 13px; color-scheme: dark; }
+    .ps-season-box span { display: block; color: var(--ps-dim); font-size: 9px; letter-spacing: .1em; margin-top: 11px; }
+    .ps-status { color: #b8c1c9; padding: 28px 0; }
+    .ps-button { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; padding: 10px 15px; border: 1px solid #ffffff29; color: #eceff1; background: #151b21; font: inherit; font-size: 10px; font-weight: 800; letter-spacing: .07em; cursor: pointer; }
+    .ps-stat-grid { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 1px; background: var(--ps-border); border: 1px solid var(--ps-border); margin: 28px 0; }
+    .ps-stat { min-height: 132px; padding: 20px; background: #11151a; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; }
+    .ps-stat-primary { background: linear-gradient(145deg, #c7342f1a, transparent 78%), #11151a; border-top: 2px solid #e24a43; }
+    .ps-stat span, .ps-mini-grid span { color: var(--ps-dim); font-size: 8px; font-weight: 800; letter-spacing: .12em; }
+    .ps-stat strong { font-size: clamp(26px, 3vw, 40px); letter-spacing: -.05em; }
+    .ps-stat small, .ps-mini-grid small { color: #87919b; font-size: 9px; line-height: 1.4; }
+    .ps-rivalries { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; margin-bottom: 34px; }
+    .ps-rivalry { padding: 26px; border: 1px solid var(--ps-border); background: #11151a; min-width: 0; }
+    .ps-rivalry-danger { border-top: 2px solid #e24a43; }
+    .ps-rivalry-good { border-top: 2px solid #6f8f78; }
+    .ps-rivalry h2 { margin: 0; font-size: clamp(22px, 3vw, 38px); letter-spacing: -.04em; }
+    .ps-rivalry p:last-child { color: var(--ps-dim); margin: 12px 0 0; font-size: 12px; }
+    .ps-rival-link { color: inherit; text-decoration: none; }
+    .ps-rival-link:hover { color: #f17871; }
+    .ps-section { margin: 34px 0; }
+    .ps-section-heading { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 14px; }
+    .ps-section-heading h2 { margin: 0; font-size: 12px; letter-spacing: .13em; }
+    .ps-section-heading span { color: var(--ps-dim); font-size: 9px; letter-spacing: .08em; }
+    .ps-mini-grid { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); border: 1px solid var(--ps-border); background: var(--ps-border); gap: 1px; }
+    .ps-mini-grid article { min-height: 105px; background: #11151a; padding: 17px; display: flex; flex-direction: column; justify-content: space-between; gap: 6px; }
+    .ps-mini-grid strong { font-size: 27px; letter-spacing: -.04em; }
+    .ps-split { display: grid; grid-template-columns: 1.15fr .85fr; gap: 14px; }
+    .ps-panel { padding: 20px; border: 1px solid var(--ps-border); background: #0d1115; margin: 0; }
+    .ps-table-wrap { overflow-x: auto; }
+    .ps-table { width: 100%; border-collapse: collapse; font-size: 11px; font-variant-numeric: tabular-nums; }
+    .ps-table th, .ps-table td { padding: 12px 10px; border-bottom: 1px solid #ffffff0b; text-align: left; }
+    .ps-table th { color: #aab5bf; font-size: 8px; letter-spacing: .1em; background: #171d24; }
+    .ps-table .ps-number { text-align: right; }
+    .ps-table .ps-cause { max-width: 240px; overflow-wrap: anywhere; }
+    .ps-empty { color: var(--ps-dim); padding: 18px !important; }
+    .ps-recent { display: grid; gap: 1px; background: var(--ps-border); border: 1px solid var(--ps-border); }
+    .ps-event { background: #11151a; display: flex; justify-content: space-between; gap: 20px; padding: 16px 18px; border-left: 3px solid #6c7680; }
+    .ps-event-kill { border-left-color: #738f79; }
+    .ps-event-death { border-left-color: #b44a45; }
+    .ps-event-main { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+    .ps-event-main strong { font-size: 11px; letter-spacing: .04em; overflow-wrap: anywhere; }
+    .ps-event-main span, .ps-event-time { color: var(--ps-dim); font-size: 10px; }
+    .ps-event-time { white-space: nowrap; }
+    .ps-notes { margin: 26px 0 0; color: var(--ps-dim); font-size: 11px; line-height: 1.8; max-width: 900px; }
+    .ps-notes strong { color: #cbd2d8; font-size: 9px; letter-spacing: .07em; margin-right: 8px; }
+    .ps-footer { display: flex; flex-wrap: wrap; gap: 24px; padding-block: 27px 38px; color: var(--ps-dim); font-size: 9px; letter-spacing: .1em; border-top: 1px solid var(--ps-border); }
+    .ps-footer span { margin-right: auto; }
+    @media (max-width: 1000px) {
+      .ps-stat-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+      .ps-rivalries { grid-template-columns: 1fr 1fr; }
+      .ps-rivalry-arch { grid-column: 1 / -1; }
+      .ps-mini-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+      .ps-split { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 650px) {
+      .ps-header { flex-direction: column; align-items: flex-start; padding-block: 18px; gap: 18px; }
+      .ps-nav { width: 100%; justify-content: space-between; gap: 12px; font-size: 10px; }
+      .ps-hero { flex-direction: column; align-items: stretch; }
+      .ps-season-box { flex: none; }
+      .ps-stat-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .ps-rivalries { grid-template-columns: 1fr; }
+      .ps-rivalry-arch { grid-column: auto; }
+      .ps-mini-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .ps-event { flex-direction: column; gap: 8px; }
+    }
+  </style>
+</BaseLayout>

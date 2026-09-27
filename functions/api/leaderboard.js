@@ -1,216 +1,18 @@
-const BISECT_SERVER_ID = "6c162067-7032-4d2c-8431-e2e2bf36be4f";
-const BISECT_BASE_URL =
-  `https://games.bisecthosting.com/api/client/servers/${BISECT_SERVER_ID}/player`;
+import { describeCause } from "../_lib/causeCatalog.js";
 
-const PER_PAGE = 100;
-const SYNC_INTERVAL_MS = 30 * 60 * 1000;
-const FETCH_BATCH_SIZE = 5;
-
-async function fetchBisectPage(apiKey, page) {
-  const response = await fetch(
-    `${BISECT_BASE_URL}?page=${page}&per_page=${PER_PAGE}`,
-    {
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        Accept: "application/json"
-      }
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error(`Bisect API returned ${response.status} on page ${page}`);
-  }
-
-  return response.json();
-}
-
-function sanitizePlayer(player) {
-  const attributes = player?.attributes ?? {};
-  const stats = attributes.stats ?? {};
-
-  return {
-    uuid: String(attributes.uuid ?? ""),
-    username: String(attributes.username ?? "Unknown"),
-    status: String(attributes.status ?? "offline"),
-    lastSeen: attributes.last_seen ?? null,
-    kills: Number(stats.kills ?? 0),
-    deaths: Number(stats.deaths ?? 0),
-    cash: Number(stats.cash ?? 0),
-    faction: String(stats.faction ?? "Unknown")
-  };
-}
-
-async function fetchAllPlayers(apiKey) {
-  const firstPage = await fetchBisectPage(apiKey, 1);
-
-  const players = Array.isArray(firstPage?.data)
-    ? [...firstPage.data]
-    : [];
-
-  const totalPages = Number(
-    firstPage?.meta?.pagination?.total_pages ?? 1
-  );
-
-  for (let start = 2; start <= totalPages; start += FETCH_BATCH_SIZE) {
-    const pages = [];
-
-    for (
-      let page = start;
-      page < start + FETCH_BATCH_SIZE && page <= totalPages;
-      page++
-    ) {
-      pages.push(fetchBisectPage(apiKey, page));
-    }
-
-    const results = await Promise.all(pages);
-
-    for (const payload of results) {
-      if (Array.isArray(payload?.data)) {
-        players.push(...payload.data);
-      }
-    }
-  }
-
-  const uniquePlayers = new Map();
-
-  for (const rawPlayer of players) {
-    const player = sanitizePlayer(rawPlayer);
-
-    if (!player.uuid) {
-      continue;
-    }
-
-    const existing = uniquePlayers.get(player.uuid);
-
-    if (!existing) {
-      uniquePlayers.set(player.uuid, player);
-      continue;
-    }
-
-    const existingTime = existing.lastSeen
-      ? Date.parse(existing.lastSeen)
-      : 0;
-
-    const playerTime = player.lastSeen
-      ? Date.parse(player.lastSeen)
-      : 0;
-
-    if (playerTime > existingTime) {
-      uniquePlayers.set(player.uuid, player);
-      continue;
-    }
-
-    if (playerTime === existingTime) {
-      const existingScore =
-        existing.kills +
-        existing.deaths +
-        existing.cash;
-
-      const playerScore =
-        player.kills +
-        player.deaths +
-        player.cash;
-
-      if (playerScore > existingScore) {
-        uniquePlayers.set(player.uuid, player);
-      }
-    }
-  }
-
-  return [...uniquePlayers.values()];
-}
-
-async function syncSeason(context, seasonId) {
-  const apiKey = context.env.BISECT_API_KEY;
-
-  if (!apiKey) {
-    throw new Error("BISECT_API_KEY is not configured");
-  }
-
-  const players = await fetchAllPlayers(apiKey);
-  const now = new Date().toISOString();
-
-  const upsert = context.env.DB.prepare(`
-    INSERT INTO season_player_stats (
-      season_id,
-      player_uuid,
-      username,
-      status,
-      kills,
-      deaths,
-      cash,
-      faction,
-      last_seen,
-      updated_at
-    )
-    SELECT
-      ?1,
-      CAST(json_extract(value, '$.uuid') AS TEXT),
-      CAST(json_extract(value, '$.username') AS TEXT),
-      CAST(json_extract(value, '$.status') AS TEXT),
-      CAST(json_extract(value, '$.kills') AS INTEGER),
-      CAST(json_extract(value, '$.deaths') AS INTEGER),
-      CAST(json_extract(value, '$.cash') AS INTEGER),
-      CAST(json_extract(value, '$.faction') AS TEXT),
-      json_extract(value, '$.lastSeen'),
-      ?3
-    FROM json_each(?2)
-    WHERE CAST(json_extract(value, '$.uuid') AS TEXT) <> ''
-    ON CONFLICT(season_id, player_uuid) DO UPDATE SET
-      username = excluded.username,
-      status = excluded.status,
-      kills = excluded.kills,
-      deaths = excluded.deaths,
-      cash = excluded.cash,
-      faction = excluded.faction,
-      last_seen = excluded.last_seen,
-      updated_at = excluded.updated_at
-    WHERE
-      season_player_stats.username IS NOT excluded.username OR
-      season_player_stats.status IS NOT excluded.status OR
-      season_player_stats.kills IS NOT excluded.kills OR
-      season_player_stats.deaths IS NOT excluded.deaths OR
-      season_player_stats.cash IS NOT excluded.cash OR
-      season_player_stats.faction IS NOT excluded.faction OR
-      season_player_stats.last_seen IS NOT excluded.last_seen
-  `);
-
-  await upsert
-    .bind(
-      seasonId,
-      JSON.stringify(players),
-      now
-    )
-    .run();
-
-  await context.env.DB.prepare(`
-    INSERT INTO leaderboard_sync (
-      season_id,
-      last_synced_at,
-      player_count
-    )
-    VALUES (?1, ?2, ?3)
-    ON CONFLICT(season_id) DO UPDATE SET
-      last_synced_at = excluded.last_synced_at,
-      player_count = excluded.player_count
-  `)
-    .bind(seasonId, now, players.length)
-    .run();
-
-  return players.length;
-}
-
-// Only these fixed expressions may be interpolated into ORDER BY.
 const SORT_COLUMNS = {
   kills: "kills",
   deaths: "deaths",
-  kd: "CASE WHEN deaths = 0 AND kills > 0 THEN 1 ELSE 0 END",
-  cash: "cash"
+  kd: "kd",
+  headshots: "headshots",
+  longest: "longest_distance_cm"
 };
 
 function positiveInteger(value, fallback, maximum) {
   if (!value || !/^\d+$/.test(value)) return fallback;
+
   const number = Number(value);
+
   return Number.isSafeInteger(number) && number > 0
     ? Math.min(number, maximum)
     : fallback;
@@ -223,27 +25,160 @@ function publicSeason(season) {
     startsAt: season.starts_at,
     endsAt: season.ends_at,
     finalizedAt: season.finalized_at,
-    isActive: Boolean(season.is_active)
+    isActive: Boolean(season.is_active),
+    combatTrackingStartedAt: season.combat_tracking_started_at ?? null
   };
+}
+
+function playerCte(killFilterSql = "") {
+  return `
+    WITH appearances AS (
+      SELECT
+        killer_steam_id AS steam_id,
+        killer_name AS username,
+        received_at,
+        event_id
+      FROM kill_events
+      WHERE season_id = ?1
+        AND killer_steam_id IS NOT NULL
+        AND trim(killer_steam_id) <> ''
+
+      UNION ALL
+
+      SELECT
+        victim_steam_id AS steam_id,
+        victim_name AS username,
+        received_at,
+        event_id
+      FROM kill_events
+      WHERE season_id = ?1
+        AND victim_steam_id IS NOT NULL
+        AND trim(victim_steam_id) <> ''
+    ),
+    latest_names AS (
+      SELECT steam_id, username
+      FROM (
+        SELECT
+          steam_id,
+          CASE
+            WHEN username IS NULL OR trim(username) = '' THEN 'Unknown'
+            ELSE username
+          END AS username,
+          ROW_NUMBER() OVER (
+            PARTITION BY steam_id
+            ORDER BY received_at DESC, event_id DESC
+          ) AS rn
+        FROM appearances
+      )
+      WHERE rn = 1
+    ),
+    kills AS (
+      SELECT
+        killer_steam_id AS steam_id,
+        COUNT(*) AS kills,
+        SUM(COALESCE(is_headshot, 0)) AS headshots,
+        MAX(COALESCE(distance_cm, 0)) AS longest_distance_cm
+      FROM kill_events
+      WHERE season_id = ?1
+        AND killer_steam_id IS NOT NULL
+        AND victim_steam_id IS NOT NULL
+        AND killer_steam_id <> victim_steam_id
+        AND COALESCE(is_suicide, 0) = 0
+        ${killFilterSql}
+      GROUP BY killer_steam_id
+    ),
+    deaths AS (
+      SELECT
+        victim_steam_id AS steam_id,
+        COUNT(*) AS deaths
+      FROM kill_events
+      WHERE season_id = ?1
+        AND victim_steam_id IS NOT NULL
+        AND trim(victim_steam_id) <> ''
+      GROUP BY victim_steam_id
+    ),
+    ids AS (
+      SELECT DISTINCT steam_id FROM appearances
+    ),
+    base_stats AS (
+      SELECT
+        ids.steam_id,
+        COALESCE(latest_names.username, 'Unknown') AS username,
+        COALESCE(kills.kills, 0) AS kills,
+        COALESCE(kills.headshots, 0) AS headshots,
+        COALESCE(kills.longest_distance_cm, 0) AS longest_distance_cm,
+        COALESCE(deaths.deaths, 0) AS deaths
+      FROM ids
+      LEFT JOIN latest_names USING (steam_id)
+      LEFT JOIN kills USING (steam_id)
+      LEFT JOIN deaths USING (steam_id)
+    ),
+    player_stats AS (
+      SELECT
+        steam_id,
+        username,
+        kills,
+        deaths,
+        headshots,
+        longest_distance_cm,
+        ROUND(CAST(longest_distance_cm AS REAL) / 100.0, 1) AS longestKillMeters,
+        CASE
+          WHEN deaths = 0 THEN kills
+          ELSE ROUND(CAST(kills AS REAL) / deaths, 2)
+        END AS kd,
+        CASE
+          WHEN deaths = 0 THEN kills
+          ELSE CAST(kills AS REAL) / deaths
+        END AS kd_exact
+      FROM base_stats
+    )
+  `;
+}
+
+function normalizeWeaponOptions(rows) {
+  return (rows ?? []).map((row) => {
+    const description = describeCause(row.cause);
+
+    return {
+      rawCause: row.cause,
+      name: description.name,
+      category: description.category,
+      identified: description.identified,
+      kills: Number(row.kills ?? 0)
+    };
+  });
 }
 
 export async function onRequestGet(context) {
   try {
     const url = new URL(context.request.url);
     const query = (url.searchParams.get("q") ?? "").trim().slice(0, 100);
-    const requestedSort = url.searchParams.get("sort") ?? "kills";
-    const sort = Object.hasOwn(SORT_COLUMNS, requestedSort) ? requestedSort : "kills";
-    const order = url.searchParams.get("order") === "asc" ? "asc" : "desc";
+    const requestedOrder = url.searchParams.get("order") === "asc" ? "asc" : "desc";
+    const order = requestedOrder;
     const direction = order === "asc" ? "ASC" : "DESC";
     const pageSize = positiveInteger(url.searchParams.get("pageSize"), 100, 100);
-    const requestedPage = positiveInteger(url.searchParams.get("page"), 1, 1000000);
+    const requestedPage = positiveInteger(
+      url.searchParams.get("page"),
+      1,
+      1000000
+    );
     const seasonId = url.searchParams.get("season");
+    const requestedCategory = (url.searchParams.get("category") ?? "").trim().slice(0, 80);
+    const requestedWeapon = (url.searchParams.get("weapon") ?? "").trim().slice(0, 200);
 
     const seasonsResult = await context.env.DB.prepare(`
-      SELECT id, name, starts_at, ends_at, finalized_at, is_active
+      SELECT
+        id,
+        name,
+        starts_at,
+        ends_at,
+        finalized_at,
+        is_active,
+        combat_tracking_started_at
       FROM seasons
       ORDER BY starts_at DESC, id DESC
     `).all();
+
     const seasons = seasonsResult.results ?? [];
     const season = seasonId
       ? seasons.find((item) => String(item.id) === seasonId)
@@ -256,68 +191,164 @@ export async function onRequestGet(context) {
       );
     }
 
-    const sync = await context.env.DB.prepare(`
-      SELECT last_synced_at, player_count FROM leaderboard_sync WHERE season_id = ?1
-    `).bind(season.id).first();
-    const lastSyncMs = sync?.last_synced_at ? Date.parse(sync.last_synced_at) : 0;
-    // Archived seasons must never be overwritten with current Bisect data.
-    const shouldSync = Boolean(season.is_active) && !season.finalized_at &&
-      (!lastSyncMs || Date.now() - lastSyncMs >= SYNC_INTERVAL_MS);
-    let refreshed = false;
-    let syncError = null;
-    if (shouldSync) {
-      try {
-        await syncSeason(context, season.id);
-        refreshed = true;
-      } catch (error) {
-        console.error("Leaderboard sync failed:", error);
-        syncError = String(error);
-      }
+    const causesResult = await context.env.DB.prepare(`
+      SELECT
+        cause,
+        COUNT(*) AS kills
+      FROM kill_events
+      WHERE season_id = ?1
+        AND cause IS NOT NULL
+        AND trim(cause) <> ''
+        AND killer_steam_id IS NOT NULL
+        AND victim_steam_id IS NOT NULL
+        AND killer_steam_id <> victim_steam_id
+        AND COALESCE(is_suicide, 0) = 0
+      GROUP BY cause
+      ORDER BY kills DESC, cause ASC
+    `).bind(season.id).all();
+
+    const weaponOptions = normalizeWeaponOptions(causesResult.results);
+    const byCause = new Map(weaponOptions.map((weapon) => [weapon.rawCause, weapon]));
+    const categoryTotals = new Map();
+
+    for (const weapon of weaponOptions) {
+      categoryTotals.set(
+        weapon.category,
+        (categoryTotals.get(weapon.category) ?? 0) + weapon.kills
+      );
     }
 
-    // INSTR treats %, _, and quotes as literal search text. Values remain bound.
-    const count = await context.env.DB.prepare(`
-      SELECT COUNT(*) AS total,
-        COALESCE(SUM(CASE WHEN instr(lower(username), lower(?2)) > 0 THEN 1 ELSE 0 END), 0) AS matched
-      FROM season_player_stats WHERE season_id = ?1
-    `).bind(season.id, query).first();
+    const categoryOptions = [...categoryTotals.entries()]
+      .map(([name, kills]) => ({ name, kills }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    let weapon = byCause.has(requestedWeapon) ? requestedWeapon : "";
+    let category = categoryTotals.has(requestedCategory) ? requestedCategory : "";
+
+    if (weapon) {
+      category = byCause.get(weapon).category;
+    }
+
+    const filterCauseIds = weapon
+      ? [weapon]
+      : category
+        ? weaponOptions
+            .filter((item) => item.category === category)
+            .map((item) => item.rawCause)
+        : [];
+
+    const filterActive = filterCauseIds.length > 0;
+    const causePlaceholders = filterCauseIds
+      .map((_, index) => `?${index + 2}`)
+      .join(", ");
+    const killFilterSql = filterActive
+      ? `AND cause IN (${causePlaceholders})`
+      : "";
+    const cte = playerCte(killFilterSql);
+    const searchParameter = filterCauseIds.length + 2;
+    const pageSizeParameter = searchParameter + 1;
+    const offsetParameter = searchParameter + 2;
+    const eligibility = filterActive ? "kills > 0" : "1 = 1";
+
+    const allowedSorts = filterActive
+      ? new Set(["kills", "headshots", "longest"])
+      : new Set(["kills", "deaths", "kd"]);
+    const requestedSort = url.searchParams.get("sort") ?? "kills";
+    const sort = allowedSorts.has(requestedSort) ? requestedSort : "kills";
+
+    const count = await context.env.DB.prepare(`${cte}
+      SELECT
+        COUNT(*) AS total,
+        COALESCE(
+          SUM(
+            CASE
+              WHEN ${eligibility}
+                AND instr(lower(username), lower(?${searchParameter})) > 0
+              THEN 1
+              ELSE 0
+            END
+          ),
+          0
+        ) AS matched
+      FROM player_stats
+    `).bind(season.id, ...filterCauseIds, query).first();
+
     const totalPlayers = Number(count?.total ?? 0);
     const filteredPlayers = Number(count?.matched ?? 0);
-    if (totalPlayers === 0 && syncError) {
-      return Response.json({ ok: false, error: "leaderboard_sync_failed" }, { status: 502 });
-    }
     const totalPages = Math.max(1, Math.ceil(filteredPlayers / pageSize));
     const page = Math.min(requestedPage, totalPages);
     const offset = (page - 1) * pageSize;
-    // kd stays numeric for compatibility; the UI displays infinity for positive kills / zero deaths.
-    const kdExpression = "CASE WHEN deaths = 0 THEN kills ELSE ROUND(CAST(kills AS REAL) / deaths, 2) END";
-    const exactKd = "CASE WHEN deaths = 0 THEN kills ELSE CAST(kills AS REAL) / deaths END";
-    const kdOrder = `CASE WHEN deaths = 0 AND kills > 0 THEN 1 ELSE 0 END DESC, ${exactKd} DESC`;
+
+    const infiniteFlag = "CASE WHEN deaths = 0 AND kills > 0 THEN 1 ELSE 0 END";
+    const kdOrder = `${infiniteFlag} ${direction}, kd_exact ${direction}`;
     const primaryOrder = sort === "kd"
-      ? `${SORT_COLUMNS.kd} ${direction}, ${exactKd} ${direction}`
+      ? kdOrder
       : `${SORT_COLUMNS[sort]} ${direction}`;
-    const rankingOrder = `${primaryOrder}, kills DESC, ${kdOrder}, cash DESC, username COLLATE NOCASE ASC, player_uuid ASC`;
-    // Rank the whole season before applying search, so search preserves each player's position.
-    const leaderboardResult = await context.env.DB.prepare(`
-      WITH ranked AS (
-        SELECT ROW_NUMBER() OVER (ORDER BY ${rankingOrder}) AS rank,
-          username, status, kills, deaths, ${kdExpression} AS kd,
-          cash, faction, last_seen AS lastSeen
-        FROM season_player_stats WHERE season_id = ?1
+    const rankingOrder = filterActive
+      ? `${primaryOrder}, kills DESC, headshots DESC, longest_distance_cm DESC, username COLLATE NOCASE ASC, steam_id ASC`
+      : `${primaryOrder}, kills DESC, ${infiniteFlag} DESC, kd_exact DESC, deaths ASC, username COLLATE NOCASE ASC, steam_id ASC`;
+
+    const leaderboardResult = await context.env.DB.prepare(`${cte}
+      , ranked AS (
+        SELECT
+          ROW_NUMBER() OVER (ORDER BY ${rankingOrder}) AS rank,
+          steam_id AS steamId,
+          username,
+          kills,
+          deaths,
+          kd,
+          headshots,
+          longestKillMeters
+        FROM player_stats
+        WHERE ${eligibility}
       )
-      SELECT * FROM ranked WHERE instr(lower(username), lower(?2)) > 0
-      ORDER BY rank LIMIT ?3 OFFSET ?4
-    `).bind(season.id, query, pageSize, offset).all();
-    // Leaders always represent most kills across the entire selected season.
-    const leaders = await context.env.DB.prepare(`
-      SELECT username, kills, deaths, ${kdExpression} AS kd, cash, faction
-      FROM season_player_stats WHERE season_id = ?1
-      ORDER BY kills DESC, ${kdOrder}, cash DESC, username COLLATE NOCASE ASC, player_uuid ASC
+      SELECT *
+      FROM ranked
+      WHERE instr(lower(username), lower(?${searchParameter})) > 0
+      ORDER BY rank
+      LIMIT ?${pageSizeParameter} OFFSET ?${offsetParameter}
+    `).bind(
+      season.id,
+      ...filterCauseIds,
+      query,
+      pageSize,
+      offset
+    ).all();
+
+    const leaderOrder = filterActive
+      ? sort === "headshots"
+        ? "headshots DESC, kills DESC, longest_distance_cm DESC, username COLLATE NOCASE ASC, steam_id ASC"
+        : sort === "longest"
+          ? "longest_distance_cm DESC, kills DESC, headshots DESC, username COLLATE NOCASE ASC, steam_id ASC"
+          : "kills DESC, headshots DESC, longest_distance_cm DESC, username COLLATE NOCASE ASC, steam_id ASC"
+      : `kills DESC, ${infiniteFlag} DESC, kd_exact DESC, deaths ASC, username COLLATE NOCASE ASC, steam_id ASC`;
+
+    const leaders = await context.env.DB.prepare(`${cte}
+      SELECT
+        steam_id AS steamId,
+        username,
+        kills,
+        deaths,
+        kd,
+        headshots,
+        longestKillMeters
+      FROM player_stats
+      WHERE ${eligibility}
+      ORDER BY ${leaderOrder}
       LIMIT 3
-    `).bind(season.id).all();
-    const latestSync = await context.env.DB.prepare(`
-      SELECT last_synced_at, player_count FROM leaderboard_sync WHERE season_id = ?1
+    `).bind(season.id, ...filterCauseIds).all();
+
+    const eventMeta = await context.env.DB.prepare(`
+      SELECT
+        COUNT(*) AS events_recorded,
+        MIN(received_at) AS first_event_at,
+        MAX(received_at) AS last_event_at
+      FROM kill_events
+      WHERE season_id = ?1
     `).bind(season.id).first();
+
+    const selectedWeapon = weapon ? byCause.get(weapon) : null;
+    const filterLabel = selectedWeapon?.name ?? category ?? "Entire season";
 
     return Response.json({
       ok: true,
@@ -328,13 +359,34 @@ export async function onRequestGet(context) {
       players: leaderboardResult.results ?? [],
       leaders: leaders.results ?? [],
       pagination: { page, pageSize, totalPages },
-      filters: { q: query, sort, order },
-      meta: { lastSyncedAt: latestSync?.last_synced_at ?? null, refreshed, stale: Boolean(syncError) }
+      filters: {
+        q: query,
+        sort,
+        order,
+        category,
+        weapon,
+        filterActive,
+        filterLabel
+      },
+      weaponOptions,
+      categoryOptions,
+      meta: {
+        eventsRecorded: Number(eventMeta?.events_recorded ?? 0),
+        firstEventAt: eventMeta?.first_event_at ?? null,
+        lastEventAt: eventMeta?.last_event_at ?? null,
+        trackingStartedAt: season.combat_tracking_started_at ?? null
+      }
     }, {
-      headers: { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=600" }
+      headers: {
+        "Cache-Control": "public, max-age=15, s-maxage=30, stale-while-revalidate=60"
+      }
     });
   } catch (error) {
     console.error("Leaderboard error:", error);
-    return Response.json({ ok: false, error: "leaderboard_unavailable" }, { status: 502 });
+
+    return Response.json(
+      { ok: false, error: "leaderboard_unavailable" },
+      { status: 502 }
+    );
   }
 }

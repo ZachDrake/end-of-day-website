@@ -3,7 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { site } from "../config/site";
 ---
 
-<BaseLayout title="Leaderboard | End of Day" description="Find your place on the End of Day WARDOGS leaderboard. Browse player kills, deaths, K/D, and cash by season.">
+<BaseLayout title="Leaderboard | End of Day" description="Find your place on the End of Day WARDOGS leaderboard. Browse season-long native combat stats recorded on the EOD community server.">
   <div class="lb-page">
     <header class="lb-header shell">
       <a class="brand" href="/" aria-label={`${site.communityName} home`}>
@@ -20,9 +20,9 @@ import { site } from "../config/site";
     <main class="shell lb-main" id="main-content">
       <section class="lb-hero" aria-labelledby="lb-title">
         <div>
-          <p class="lb-eyebrow">END OF DAY / PLAYER STATS</p>
+          <p class="lb-eyebrow">END OF DAY / LIVE COMBAT STATS</p>
           <h1 id="lb-title">FAMILIAR NAMES.<br /><em>FRIENDLY RIVALRIES.</em></h1>
-          <p class="lb-lede">Find your squad. Check your stats. See who's putting in the work.</p>
+          <p class="lb-lede">Season-long combat stats recorded directly from the EOD WARDOGS server.</p>
         </div>
         <div class="lb-season-box">
           <label for="lb-season">SEASON</label>
@@ -32,13 +32,12 @@ import { site } from "../config/site";
       </section>
 
       <div class="lb-meta">
-        <p><strong id="lb-total">—</strong> <span>PLAYERS THIS SEASON</span></p>
-        <p id="lb-sync">Fetching the latest available stats…</p>
+        <p><strong id="lb-total">—</strong> <span>PLAYERS TRACKED</span></p>
+        <p id="lb-sync">Waiting for native combat data…</p>
       </div>
-      <div id="lb-notice" class="lb-notice" role="status" hidden></div>
 
       <section class="lb-leaders-section" aria-labelledby="lb-leaders-title">
-        <div class="lb-section-heading"><h2 id="lb-leaders-title">LEADING THE FIGHT</h2><span>MOST KILLS / ENTIRE SEASON</span></div>
+        <div class="lb-section-heading"><h2 id="lb-leaders-title">LEADING THE FIGHT</h2><span id="lb-leader-context">MOST KILLS / ENTIRE SEASON</span></div>
         <div id="lb-leaders" class="lb-leaders" aria-busy="true"><p class="lb-muted">Loading season leaders…</p></div>
       </section>
 
@@ -46,9 +45,11 @@ import { site } from "../config/site";
         <div class="lb-board-heading"><h2 id="lb-board-title">THE ROSTER</h2><span id="lb-match-count">ALL PLAYERS</span></div>
         <form id="lb-form" class="lb-toolbar" role="search">
           <div class="lb-search-field"><label for="lb-search">FIND A PLAYER</label><input id="lb-search" type="search" maxlength="100" placeholder="Search player name…" autocomplete="off" /></div>
-          <div><label for="lb-sort">SORT BY</label><select id="lb-sort"><option value="kills">Kills</option><option value="deaths">Deaths</option><option value="kd">K/D</option><option value="cash">Cash</option></select></div>
+          <div><label for="lb-category">WEAPON TYPE</label><select id="lb-category"><option value="">All types</option></select></div>
+          <div><label for="lb-weapon">WEAPON</label><select id="lb-weapon"><option value="">All weapons</option></select></div>
+          <div><label for="lb-sort">SORT BY</label><select id="lb-sort"><option value="kills">Kills</option><option value="deaths">Deaths</option><option value="kd">K/D</option></select></div>
           <div><label for="lb-order">ORDER</label><select id="lb-order"><option value="desc">Highest first</option><option value="asc">Lowest first</option></select></div>
-          <button id="lb-clear" type="button" class="lb-button">CLEAR SEARCH</button>
+          <button id="lb-clear" type="button" class="lb-button">CLEAR FILTERS</button>
         </form>
 
         <p id="lb-status" class="lb-status" role="status" aria-live="polite">Loading player stats…</p>
@@ -63,8 +64,8 @@ import { site } from "../config/site";
                 <th scope="col" data-sort-heading="kills" aria-sort="descending"><button type="button" data-sort="kills">KILLS <span aria-hidden="true">↓</span></button></th>
                 <th scope="col" data-sort-heading="deaths"><button type="button" data-sort="deaths">DEATHS <span aria-hidden="true">↕</span></button></th>
                 <th scope="col" data-sort-heading="kd"><button type="button" data-sort="kd">K/D <span aria-hidden="true">↕</span></button></th>
-                <th scope="col" data-sort-heading="cash"><button type="button" data-sort="cash">CASH <span aria-hidden="true">↕</span></button></th>
-                <th scope="col">FACTION</th><th scope="col">LAST SEEN</th>
+                <th scope="col" data-sort-heading="headshots" hidden><button type="button" data-sort="headshots">HEADSHOTS <span aria-hidden="true">↕</span></button></th>
+                <th scope="col" data-sort-heading="longest" hidden><button type="button" data-sort="longest">LONGEST <span aria-hidden="true">↕</span></button></th>
               </tr></thead>
               <tbody id="lb-rows"></tbody>
             </table>
@@ -77,10 +78,11 @@ import { site } from "../config/site";
       </section>
 
       <aside class="lb-notes" aria-label="About these stats">
-        <p><strong>KNOW THE NUMBERS.</strong> Stats reflect the latest player records available from our server host. Active-season data refreshes when requested after a 30-minute sync window; cached results may take a few extra minutes to update.</p>
-        <p>K/D is kills divided by deaths. Positive kills with zero deaths display as ∞; 0 kills and 0 deaths display as 0.00. Ranks follow your selected sort. Season leaders always show most kills.</p>
-        <p>Longest kills, headshots, and weapon stats are not being tracked yet.</p>
+        <p><strong>NATIVE WARDOGS DATA.</strong> These stats are built from kill events sent directly by the EOD WARDOGS server. They accumulate across the selected season instead of resetting with each player session.</p>
+        <p>K/D is kills divided by deaths. Self-kills and suicides count as deaths but do not award a kill. Positive kills with zero deaths display as ∞.</p>
+        <p>Click any player to open their full combat profile, including headshots, suicides, longest kills, weapons, map performance, nemesis, favorite victim, and recent combat.</p>
       </aside>
+
       <section class="lb-join"><div><p class="lb-eyebrow">MORE THAN A NAME ON A BOARD.</p><h2>FIND YOUR PEOPLE.</h2></div><a class="lb-button lb-button-accent" href={site.discordUrl} target="_blank" rel="noreferrer">JOIN THE DISCORD ↗</a></section>
     </main>
     <footer class="lb-footer shell"><span>END OF DAY / EST. 2026</span><a href="/">HOME</a><a href="/server">SERVER INFO</a><a href="/rules">RULES</a></footer>
@@ -90,10 +92,14 @@ import { site } from "../config/site";
     (() => {
       const $ = (id) => document.getElementById(id);
       const params = new URLSearchParams(location.search);
-      const validSorts = ["kills", "deaths", "kd", "cash"];
+      const validSorts = ["kills", "deaths", "kd", "headshots", "longest"];
       const state = {
         season: params.get("season") || "",
         q: (params.get("q") || "").slice(0, 100),
+        category: (params.get("category") || "").slice(0, 80),
+        weapon: (params.get("weapon") || "").slice(0, 200),
+        filterActive: false,
+        filterLabel: "Entire season",
         sort: validSorts.includes(params.get("sort")) ? params.get("sort") : "kills",
         order: params.get("order") === "asc" ? "asc" : "desc",
         page: /^\d+$/.test(params.get("page") || "") ? Math.max(1, Math.min(1000000, Number(params.get("page")))) : 1
@@ -102,6 +108,7 @@ import { site } from "../config/site";
       let requestId = 0;
       let debounce;
       let totalPages = 1;
+      let weaponOptions = [];
       const integer = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 });
       const decimal = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       const number = (value) => Number.isFinite(Number(value)) ? Number(value) : 0;
@@ -110,7 +117,6 @@ import { site } from "../config/site";
         : decimal.format(number(player.kills) / number(player.deaths));
       const parseDate = (value) => {
         if (!value) return null;
-        // SQLite CURRENT_TIMESTAMP is UTC without an explicit zone.
         let normalized = String(value).replace(" ", "T");
         if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$/.test(normalized)) normalized += "Z";
         const date = new Date(normalized);
@@ -122,9 +128,85 @@ import { site } from "../config/site";
         if (text !== undefined) node.textContent = String(text);
         return node;
       };
+      const playerUrl = (player) => {
+        const url = new URL("/player", location.origin);
+        url.searchParams.set("steamId", player.steamId);
+        if (state.season) url.searchParams.set("season", state.season);
+        return url.pathname + url.search;
+      };
+      const playerLink = (player, className = "") => {
+        const link = element("a", className, player.username || "Unknown");
+        link.href = playerUrl(player);
+        return link;
+      };
+
       $("lb-search").value = state.q;
       $("lb-sort").value = state.sort;
       $("lb-order").value = state.order;
+
+      const makeOption = (value, label) => {
+        const option = element("option", "", label);
+        option.value = value;
+        return option;
+      };
+
+      const renderCategoryOptions = (categories) => {
+        const options = [makeOption("", "All types")];
+        categories.forEach((category) => options.push(makeOption(category.name, category.name)));
+        $("lb-category").replaceChildren(...options);
+        $("lb-category").value = state.category;
+      };
+
+      const renderWeaponOptions = () => {
+        const visible = state.category
+          ? weaponOptions.filter((weapon) => weapon.category === state.category)
+          : weaponOptions;
+        const options = [makeOption("", "All weapons")];
+        visible
+          .slice()
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .forEach((weapon) => {
+            const suffix = weapon.identified ? "" : " · unconfirmed";
+            options.push(makeOption(weapon.rawCause, weapon.name + suffix));
+          });
+        $("lb-weapon").replaceChildren(...options);
+        $("lb-weapon").value = visible.some((weapon) => weapon.rawCause === state.weapon) ? state.weapon : "";
+      };
+
+      const renderSortOptions = () => {
+        const definitions = state.filterActive
+          ? [["kills", "Kills"], ["headshots", "Headshots"], ["longest", "Longest kill"]]
+          : [["kills", "Kills"], ["deaths", "Deaths"], ["kd", "K/D"]];
+        $("lb-sort").replaceChildren(...definitions.map(([value, label]) => makeOption(value, label)));
+        $("lb-sort").value = state.sort;
+      };
+
+      const applyMetricMode = () => {
+        ["deaths", "kd"].forEach((name) => {
+          const heading = document.querySelector('[data-sort-heading="' + name + '"]');
+          if (heading) heading.hidden = state.filterActive;
+        });
+        ["headshots", "longest"].forEach((name) => {
+          const heading = document.querySelector('[data-sort-heading="' + name + '"]');
+          if (heading) heading.hidden = !state.filterActive;
+        });
+        document.querySelectorAll(".lb-season-metric").forEach((cell) => { cell.hidden = state.filterActive; });
+        document.querySelectorAll(".lb-filter-metric").forEach((cell) => { cell.hidden = !state.filterActive; });
+        const leaderTitle = state.filterActive && state.sort === "headshots"
+          ? "SHARPSHOOTERS"
+          : state.filterActive && state.sort === "longest"
+            ? "LONG RANGE"
+            : "LEADING THE FIGHT";
+        const leaderMetric = state.filterActive && state.sort === "headshots"
+          ? "MOST HEADSHOTS"
+          : state.filterActive && state.sort === "longest"
+            ? "LONGEST KILLS"
+            : "MOST KILLS";
+        $("lb-leaders-title").textContent = leaderTitle;
+        $("lb-leader-context").textContent = state.filterActive
+          ? leaderMetric + " / " + state.filterLabel.toUpperCase()
+          : "MOST KILLS / ENTIRE SEASON";
+      };
 
       const renderLeaders = (players) => {
         const container = $("lb-leaders");
@@ -135,10 +217,34 @@ import { site } from "../config/site";
           card.append(element("span", "lb-leader-rank", String(index + 1).padStart(2, "0")));
           const content = element("div", "lb-leader-content");
           content.append(element("p", "lb-leader-label", index === 0 ? "SETTING THE PACE" : "IN THE FIGHT"));
-          content.append(element("h3", "lb-player-name", player.username || "Unknown"));
-          content.append(element("p", "lb-leader-faction", player.faction || "Unknown"));
+          const heading = element("h3", "lb-player-name");
+          heading.append(playerLink(player, "lb-player-link"));
+          content.append(heading);
+          const profile = playerLink(player, "lb-profile-link");
+          profile.textContent = "VIEW FULL PROFILE →";
+          content.append(profile);
           const stats = element("div", "lb-leader-stats");
-          stats.append(element("strong", "", integer.format(number(player.kills))), element("span", "", "KILLS"), element("small", "", kd(player) + " K/D"));
+          const leaderMetric = state.filterActive
+            ? state.sort
+            : "kills";
+          const mainValue = leaderMetric === "headshots"
+            ? integer.format(number(player.headshots))
+            : leaderMetric === "longest"
+              ? number(player.longestKillMeters).toFixed(1) + " m"
+              : integer.format(number(player.kills));
+          const mainLabel = leaderMetric === "headshots"
+            ? "HEADSHOTS"
+            : leaderMetric === "longest"
+              ? "LONGEST"
+              : "KILLS";
+          const detail = !state.filterActive
+            ? kd(player) + " K/D"
+            : leaderMetric === "headshots"
+              ? integer.format(number(player.kills)) + " KILLS · " + number(player.longestKillMeters).toFixed(1) + " m LONGEST"
+              : leaderMetric === "longest"
+                ? integer.format(number(player.kills)) + " KILLS · " + integer.format(number(player.headshots)) + " HS"
+                : integer.format(number(player.headshots)) + " HS · " + number(player.longestKillMeters).toFixed(1) + " m LONGEST";
+          stats.append(element("strong", "", mainValue), element("span", "", mainLabel), element("small", "", detail));
           content.append(stats);
           card.append(content);
           container.append(card);
@@ -150,25 +256,17 @@ import { site } from "../config/site";
         players.forEach((player) => {
           const row = element("tr", "");
           row.append(element("td", "lb-rank", "#" + integer.format(number(player.rank))));
-          row.append(element("th", "lb-player-name", player.username || "Unknown"));
-          row.lastChild.scope = "row";
+          const nameCell = element("th", "lb-player-name");
+          nameCell.scope = "row";
+          nameCell.append(playerLink(player, "lb-player-link"));
+          row.append(nameCell);
           row.append(element("td", "lb-number lb-kills", integer.format(number(player.kills))));
-          row.append(element("td", "lb-number", integer.format(number(player.deaths))));
-          const kdCell = element("td", "lb-number", kd(player));
+          row.append(element("td", "lb-number lb-season-metric", integer.format(number(player.deaths))));
+          const kdCell = element("td", "lb-number lb-season-metric", kd(player));
           if (kd(player) === "∞") kdCell.setAttribute("aria-label", "No deaths; K/D is infinite");
-          row.append(kdCell, element("td", "lb-number", "$" + integer.format(number(player.cash))));
-          const faction = element("td", "");
-          faction.append(element("span", "lb-faction", player.faction || "Unknown"));
-          row.append(faction);
-          const seen = element("td", "lb-seen");
-          const date = parseDate(player.lastSeen);
-          if (date) {
-            const time = element("time", "", date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }));
-            time.dateTime = date.toISOString();
-            time.title = date.toLocaleString();
-            seen.append(time);
-          } else seen.textContent = "—";
-          row.append(seen);
+          row.append(kdCell);
+          row.append(element("td", "lb-number lb-filter-metric", integer.format(number(player.headshots))));
+          row.append(element("td", "lb-number lb-filter-metric", number(player.longestKillMeters).toFixed(1) + " m"));
           fragment.append(row);
         });
         $("lb-rows").replaceChildren(fragment);
@@ -186,7 +284,6 @@ import { site } from "../config/site";
         $("lb-retry").hidden = true;
         $("lb-results").hidden = true;
         $("lb-leaders").hidden = true;
-        $("lb-notice").hidden = true;
         $("lb-results").setAttribute("aria-busy", "true");
         $("lb-leaders").setAttribute("aria-busy", "true");
         $("lb-prev").disabled = true;
@@ -197,12 +294,20 @@ import { site } from "../config/site";
         try {
           const search = new URLSearchParams({ q: state.q.trim(), sort: state.sort, order: state.order, page: String(state.page), pageSize: "25" });
           if (state.season) search.set("season", state.season);
+          if (state.category) search.set("category", state.category);
+          if (state.weapon) search.set("weapon", state.weapon);
           const response = await fetch("/api/leaderboard?" + search, { headers: { Accept: "application/json" }, signal: activeController.signal });
           if (!response.ok) throw new Error(response.status === 404 ? "season" : "request");
           const payload = await response.json();
-          if (!payload.ok || !payload.pagination || !Array.isArray(payload.players) || !Array.isArray(payload.seasons) || !Array.isArray(payload.leaders)) throw new Error("response");
+          if (!payload.ok || !payload.pagination || !Array.isArray(payload.players) || !Array.isArray(payload.seasons) || !Array.isArray(payload.leaders) || !Array.isArray(payload.weaponOptions) || !Array.isArray(payload.categoryOptions)) throw new Error("response");
           if (id !== requestId) return;
           state.season = String(payload.season.id);
+          state.category = payload.filters?.category || "";
+          state.weapon = payload.filters?.weapon || "";
+          state.filterActive = Boolean(payload.filters?.filterActive);
+          state.filterLabel = payload.filters?.filterLabel || "Entire season";
+          state.sort = payload.filters?.sort || "kills";
+          state.order = payload.filters?.order === "asc" ? "asc" : "desc";
           state.page = payload.pagination.page;
           totalPages = payload.pagination.totalPages;
           const options = payload.seasons.map((season) => {
@@ -215,16 +320,23 @@ import { site } from "../config/site";
           $("lb-season").disabled = false;
           const active = payload.season.isActive && !payload.season.finalizedAt;
           $("lb-season-state").textContent = active ? "CURRENT SEASON" : "ARCHIVED SEASON";
+          weaponOptions = payload.weaponOptions;
+          renderCategoryOptions(payload.categoryOptions);
+          renderWeaponOptions();
+          renderSortOptions();
+          $("lb-order").value = state.order;
           $("lb-total").textContent = integer.format(payload.totalPlayers);
-          const syncedAt = parseDate(payload.meta?.lastSyncedAt);
-          $("lb-sync").textContent = syncedAt ? "Last synced " + syncedAt.toLocaleString() : "No sync recorded yet";
-          $("lb-notice").hidden = !payload.meta?.stale;
-          $("lb-notice").textContent = "The latest sync failed. Showing the last saved stats; totals may be out of date.";
+          const lastEventAt = parseDate(payload.meta?.lastEventAt);
+          $("lb-sync").textContent = lastEventAt
+            ? "Last combat event received " + lastEventAt.toLocaleString()
+            : "No native combat events recorded for this season yet";
           renderLeaders(payload.leaders);
           renderRows(payload.players);
+          applyMetricMode();
           $("lb-leaders").hidden = false;
           $("lb-results").hidden = payload.players.length === 0;
-          $("lb-match-count").textContent = integer.format(payload.filteredPlayers) + (state.q.trim() ? " MATCHING PLAYERS" : " PLAYERS");
+          const matchContext = state.filterActive ? " · " + state.filterLabel.toUpperCase() : "";
+          $("lb-match-count").textContent = integer.format(payload.filteredPlayers) + (state.q.trim() ? " MATCHING PLAYERS" : " PLAYERS") + matchContext;
           const start = payload.filteredPlayers ? (state.page - 1) * payload.pagination.pageSize + 1 : 0;
           const end = start ? start + payload.players.length - 1 : 0;
           $("lb-range").textContent = `${integer.format(start)}–${integer.format(end)} of ${integer.format(payload.filteredPlayers)} players`;
@@ -233,8 +345,7 @@ import { site } from "../config/site";
           $("lb-next").disabled = state.page >= totalPages;
           $("lb-status").textContent = payload.players.length
             ? `Showing players ${start} through ${end}.`
-            : (state.q.trim() ? "No players match that name. Try a different spelling or clear your search." : "No player stats have been recorded for this season yet.");
-          // Keep the live announcement available without adding a second visible row count.
+            : (state.q.trim() ? "No players match that name. Try a different spelling or clear your search." : "No native combat stats have been recorded for this season yet.");
           $("lb-status").classList.toggle("lb-sr-only", payload.players.length > 0);
           document.querySelectorAll("[data-sort-heading]").forEach((heading) => {
             const selected = heading.dataset.sortHeading === state.sort;
@@ -245,6 +356,8 @@ import { site } from "../config/site";
           shareUrl.search = "";
           shareUrl.searchParams.set("season", state.season);
           if (state.q.trim()) shareUrl.searchParams.set("q", state.q.trim());
+          if (state.category) shareUrl.searchParams.set("category", state.category);
+          if (state.weapon) shareUrl.searchParams.set("weapon", state.weapon);
           shareUrl.searchParams.set("sort", state.sort);
           shareUrl.searchParams.set("order", state.order);
           if (state.page > 1) shareUrl.searchParams.set("page", String(state.page));
@@ -253,7 +366,7 @@ import { site } from "../config/site";
           if (id !== requestId) return;
           $("lb-status").classList.remove("lb-sr-only");
           $("lb-status").textContent = error.message === "season"
-            ? "That season is unavailable. Use Clear search to return to the current season."
+            ? "That season is unavailable. Clear the season parameter to return to the current season."
             : "Stats are temporarily unavailable. Please try again.";
           $("lb-retry").hidden = false;
         } finally {
@@ -264,6 +377,7 @@ import { site } from "../config/site";
           }
         }
       };
+
       const resetPageAndLoad = () => { state.page = 1; load(); };
       $("lb-form").addEventListener("submit", (event) => { event.preventDefault(); resetPageAndLoad(); });
       $("lb-search").addEventListener("input", () => {
@@ -274,6 +388,13 @@ import { site } from "../config/site";
         $("lb-prev").disabled = true;
         $("lb-next").disabled = true;
         debounce = setTimeout(resetPageAndLoad, 300);
+      });
+      $("lb-category").addEventListener("change", () => { state.category = $("lb-category").value; state.weapon = ""; renderWeaponOptions(); resetPageAndLoad(); });
+      $("lb-weapon").addEventListener("change", () => {
+        state.weapon = $("lb-weapon").value;
+        const selected = weaponOptions.find((weapon) => weapon.rawCause === state.weapon);
+        if (selected) state.category = selected.category;
+        resetPageAndLoad();
       });
       $("lb-sort").addEventListener("change", () => { state.sort = $("lb-sort").value; resetPageAndLoad(); });
       $("lb-order").addEventListener("change", () => { state.order = $("lb-order").value; resetPageAndLoad(); });
@@ -290,8 +411,11 @@ import { site } from "../config/site";
       $("lb-season").addEventListener("change", () => { state.season = $("lb-season").value; resetPageAndLoad(); });
       $("lb-clear").addEventListener("click", () => {
         state.q = "";
+        state.category = "";
+        state.weapon = "";
         $("lb-search").value = "";
-        if ($("lb-season").disabled) state.season = "";
+        $("lb-category").value = "";
+        renderWeaponOptions();
         resetPageAndLoad();
       });
       $("lb-prev").addEventListener("click", () => { if (state.page > 1) { state.page--; load(); } });
@@ -324,7 +448,6 @@ import { site } from "../config/site";
     .lb-meta p { margin: 0; color: var(--lb-dim); font-size: 11px; }
     .lb-meta strong { color: #eceff1; font-size: 25px; letter-spacing: -.04em; margin-right: 10px; }
     .lb-meta span { font-size: 9px; letter-spacing: .1em; }
-    .lb-notice { margin-top: 20px; border-left: 3px solid #e7ac58; background: #e7ac5810; color: #f0c990; padding: 14px 18px; font-size: 13px; }
     .lb-leaders-section { margin: 34px 0 38px; }
     .lb-section-heading, .lb-board-heading { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 16px; }
     .lb-section-heading h2, .lb-board-heading h2 { font-size: 12px; letter-spacing: .13em; margin: 0; }
@@ -338,33 +461,34 @@ import { site } from "../config/site";
     .lb-leader-label { color: var(--lb-dim); font-size: 8px; letter-spacing: .15em; font-weight: 800; margin: 0 0 10px; }
     .lb-leader h3 { font-size: 18px; margin: 0; line-height: 1.3; }
     .lb-player-name { overflow-wrap: anywhere; }
-    .lb-leader-faction { color: var(--lb-dim); font-size: 11px; margin: 6px 0 19px; }
+    .lb-player-link { color: inherit; text-decoration: none; }
+    .lb-player-link:hover { color: #f17871; }
+    .lb-profile-link { display: inline-block; color: #89949e; font-size: 8px; font-weight: 800; letter-spacing: .1em; margin: 7px 0 16px; text-decoration: none; }
+    .lb-profile-link:hover { color: #f17871; }
     .lb-leader-stats { display: flex; align-items: baseline; flex-wrap: wrap; gap: 7px; font-variant-numeric: tabular-nums; }
     .lb-leader-stats strong { font-size: 31px; line-height: 1; letter-spacing: -.05em; }
     .lb-leader-stats span { font-size: 8px; color: var(--lb-dim); letter-spacing: .1em; }
     .lb-leader-stats small { margin-left: auto; font-size: 11px; color: #c6cdd3; }
     .lb-board { border: 1px solid var(--lb-border); background: #0d1115; }
     .lb-board-heading { padding: 21px 22px 0; }
-    .lb-toolbar { display: grid; grid-template-columns: minmax(180px, 1fr) 140px 150px auto; gap: 14px; align-items: end; padding: 6px 22px 22px; }
-    .lb-button { display: inline-flex; justify-content: center; align-items: center; min-height: 44px; padding: 10px 15px; border: 1px solid #ffffff29; color: #eceff1; background: #151b21; font-family: inherit; font-size: 10px; font-weight: 800; letter-spacing: .07em; cursor: pointer; }
+    .lb-toolbar { display: grid; grid-template-columns: minmax(180px, 1fr) 145px minmax(190px, 1fr) 135px 145px auto; gap: 14px; align-items: end; padding: 6px 22px 22px; }
+    .lb-button { display: inline-flex; justify-content: center; align-items: center; min-height: 44px; padding: 10px 15px; border: 1px solid #ffffff29; color: #eceff1; background: #151b21; font-family: inherit; font-size: 10px; font-weight: 800; letter-spacing: .07em; cursor: pointer; text-decoration: none; }
     .lb-button:hover:not(:disabled) { border-color: #e24a43; background: #20262d; }
     .lb-button:disabled { opacity: .38; cursor: default; }
     .lb-status { padding: 24px 22px; margin: 0; color: #b8c1c9; font-size: 14px; }
     .lb-retry { margin: 0 22px 22px; }
     .lb-table-scroll { overflow-x: auto; }
-    .lb-table { width: 100%; min-width: 820px; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+    .lb-table { width: 100%; min-width: 620px; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
     .lb-table th, .lb-table td { padding: 17px 15px; border-bottom: 1px solid #ffffff0b; text-align: left; }
     .lb-table thead th { background: #171d24; color: #aab5bf; font-size: 9px; letter-spacing: .1em; white-space: nowrap; }
     .lb-table thead button { cursor: pointer; background: none; border: 0; color: inherit; font: inherit; letter-spacing: inherit; padding: 6px 0; }
     .lb-table th[aria-sort="descending"], .lb-table th[aria-sort="ascending"] { color: #f17871; }
     .lb-table :is(th,td):first-child { padding-left: 22px; }
     .lb-table .lb-number, .lb-table thead th[data-sort-heading] { text-align: right; }
-    .lb-table tbody th { min-width: 150px; max-width: 280px; font-weight: 700; font-size: 13px; }
+    .lb-table tbody th { min-width: 180px; max-width: 360px; font-weight: 700; font-size: 13px; }
     .lb-table tbody tr:hover { background: #ffffff04; }
     .lb-rank { color: var(--lb-dim); font-size: 10px; }
     .lb-kills { color: #fff; font-weight: 800; }
-    .lb-faction { display: inline-block; padding: 4px 7px; border: 1px solid #ffffff1a; font-size: 10px; color: #bac3cb; }
-    .lb-seen { color: var(--lb-dim); font-size: 10px; white-space: nowrap; }
     .lb-pagination { padding: 18px 22px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-top: 1px solid var(--lb-border); }
     .lb-pagination p { color: var(--lb-dim); font-size: 11px; margin: 0; }
     .lb-pagination nav { display: flex; align-items: center; gap: 18px; }
@@ -396,12 +520,6 @@ import { site } from "../config/site";
       .lb-meta { align-items: start; flex-direction: column; gap: 8px; }
       .lb-leaders { grid-template-columns: 1fr; }
       .lb-leader { padding: 19px; }
-      .lb-leader-content { display: grid; grid-template-columns: minmax(0,1fr) auto; column-gap: 14px; }
-      .lb-leader-label { grid-column: 1 / -1; }
-      .lb-leader h3 { font-size: 16px; }
-      .lb-leader-faction { grid-column: 1; margin-bottom: 0; }
-      .lb-leader-stats { grid-column: 2; grid-row: 2 / 4; max-width: 110px; }
-      .lb-leader-stats small { flex-basis: 100%; margin-left: 0; }
       .lb-section-heading { align-items: start; flex-direction: column; gap: 6px; }
       .lb-toolbar { padding-inline: 14px; }
       .lb-board-heading { padding-inline: 14px; }
